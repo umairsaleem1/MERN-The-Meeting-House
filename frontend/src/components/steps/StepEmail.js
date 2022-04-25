@@ -18,13 +18,9 @@ const StepEmail = () => {
 
 
     const handleNextClick = ()=>{ 
-        if(!email.trim()){
-            dispatch(setErrorAlert({ message: 'Please enter your email id'}));
-            return;
-        }
 
-        const isValid = validator.isEmail(email);
-        if(!isValid){
+        const isValidEmail = validator.isEmail(email);
+        if(!isValidEmail){
             dispatch(setErrorAlert({ message: 'Please enter a valid email id'}));
             return;
         }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import AuthCode from 'react-auth-code-input';
 import { useDispatch, useSelector } from 'react-redux';
-import { STEPS, setStep, getOtp, verifyOtp } from '../../redux/stepsSlice';
+import { getOtp, verifyOtp } from '../../redux/stepsSlice';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import StepsTitle from '../shared/StepsTitle';
 import './stepOtp.css';
@@ -40,20 +40,15 @@ const style = {
 }
 const StepOtp = () => {
     
-    const { method, receiver } = useSelector((state)=>state.steps.otpDetails);
+    const { otpDetails, apiRequestFinished } = useSelector((state)=>state.steps);
+    const { method, receiver } = otpDetails;
     const dispatch = useDispatch();
     const [otp, setOtp] = useState('');
-    const [verifying, setVerifying] = useState({ status: false, requestFinished: false });
 
 
 
-    if(!verifying.status && verifying.requestFinished){
-        setTimeout(()=>{
-            dispatch(setStep(STEPS.NAME));
-        }, 10)
-    }
     const handleNextClick = ()=>{
-        dispatch(verifyOtp(receiver, otp, setVerifying));
+        dispatch(verifyOtp(receiver, otp));
     }
 
     return (
@@ -74,15 +69,15 @@ const StepOtp = () => {
                 <Button variant="text" sx={style.resendBtn} onClick={()=>dispatch(getOtp(method, receiver))}>Resend</Button>
             </Typography>
 
-            <Button variant='contained' endIcon={ !verifying.status && <ArrowForwardIcon/>} sx={ verifying.status ? style.spinnerBtn : (theme)=>theme.btnStyle } onClick={handleNextClick} disabled={verifying.status}>
+            <Button variant='contained' endIcon={ apiRequestFinished && <ArrowForwardIcon/>} sx={ !apiRequestFinished ? style.spinnerBtn : (theme)=>theme.btnStyle } onClick={handleNextClick} disabled={!apiRequestFinished}>
                 {
-                    verifying.status
+                    apiRequestFinished
                     ?
-                    <img src='/images/spinner.gif' alt='loader' style={style.spinner} />
-                    :
                     <>
                     Next
                     </>
+                    :
+                    <img src='/images/spinner.gif' alt='loader' style={style.spinner} /> 
                 }
             </Button>
         

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { baseURL } from '../config/baseURL';
 
 
 
@@ -79,7 +80,7 @@ export function getOtp(method, receiver){
 
     return async function getOtpThunk(){
         try{
-            const res = await fetch('/auth/sendOtp', {
+            const res = await fetch(baseURL+'/auth/sendOtp', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -101,14 +102,14 @@ export function getOtp(method, receiver){
 
 
 
-export function verifyOtp(receiver, otp, setVerifying){
+export function verifyOtp(receiver, otp){
 
     return async function verifyOtpThunk(dispatch){
 
-        setVerifying({ status: true, requestFinished: false });
+        dispatch(setApiRequestFinished(false));
         let errorMessage;
         try{
-            const res = await fetch('/auth/verifyOtp', {
+            const res = await fetch(baseURL+'/auth/verifyOtp', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -126,11 +127,15 @@ export function verifyOtp(receiver, otp, setVerifying){
             }
     
             await res.json();
-    
-            setVerifying({ status: false, requestFinished: true });
+            
+            dispatch(setApiRequestFinished(true));
+
+            setTimeout(()=>{
+                dispatch(setStep(STEPS.NAME));
+            }, 10);
     
         }catch(e){
-            setVerifying({ status: false, requestFinished: false });
+            dispatch(setApiRequestFinished(true));
             dispatch(setErrorAlert({ message: errorMessage}));
             console.log(e);
         }
@@ -153,7 +158,7 @@ export function registerUser(navigate){
                 formData.append('email', userData.email);
                 formData.append('password', userData.password);
 
-                const res = await fetch('/auth/register', {
+                const res = await fetch(baseURL+'/auth/register', {
                     method: 'POST',
                     body: formData
                 });
@@ -201,7 +206,7 @@ export function loginUser(email, password, navigate){
         dispatch(setApiRequestFinished(false));
         let errorMessage;
         try{
-            const res = await fetch('/auth/login', {
+            const res = await fetch(baseURL+'/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -229,6 +234,100 @@ export function loginUser(email, password, navigate){
             navigate('/rooms');
 
             
+        }catch(e){
+            dispatch(setApiRequestFinished(true));
+            dispatch(setErrorAlert({ message: errorMessage }));
+            console.log(e);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+export function getResetPassowrdLink(email){
+
+    return async function getResetPassowrdLinkThunk(dispatch){
+
+        dispatch(setApiRequestFinished(false));
+        let errorMessage;
+        try{
+            const res = await fetch(baseURL+'/auth/forgotpassword', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            });
+
+            if(res.status===404){
+                errorMessage = 'User does not exist with the provided email!';
+                throw new Error(res.statusText);
+            }
+            else if(!res.ok){
+                errorMessage = 'Oops! some problem occurred'
+                throw new Error(res.statusText);
+            }
+
+            const data = await res.json();
+
+            dispatch(setApiRequestFinished(true));
+            dispatch(setSuccessAlert({ message: data.message }));
+
+        }catch(e){
+            dispatch(setApiRequestFinished(true));
+            dispatch(setErrorAlert({ message: errorMessage }));
+            console.log(e);
+        }
+    }
+}
+
+
+
+
+
+
+export function resetPassword(newPassword, token, navigate){
+
+    return async function resetPasswordThunk(dispatch){
+
+        dispatch(setApiRequestFinished(false));
+        let errorMessage;
+        try{
+            const res = await fetch(`${baseURL}/auth/resetpassword/${token}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ newPassword: newPassword })
+            });
+
+            if(res.status===403){
+                errorMessage = 'You are not eligible for making this request';
+                throw new Error(res.statusText);
+            }
+            else if(res.status===404){
+                errorMessage = 'Looks like, reset password link has been expired!';
+                throw new Error(res.statusText);
+            }
+            else if(!res.ok){
+                errorMessage = 'Oops! some problem occurred';
+                throw new Error(res.statusText);
+            }
+
+            const data = await res.json();
+
+            dispatch(setApiRequestFinished(true));
+            dispatch(setSuccessAlert({ message: data.message }));
+
+            setTimeout(()=>{
+                navigate('/login');
+            }, 1000)
+
         }catch(e){
             dispatch(setApiRequestFinished(true));
             dispatch(setErrorAlert({ message: errorMessage }));

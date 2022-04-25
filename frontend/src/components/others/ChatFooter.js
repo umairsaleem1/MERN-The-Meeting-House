@@ -1,0 +1,86 @@
+import { useState } from "react";
+import { Box, IconButton, TextField, InputAdornment } from "@mui/material";
+import SendIcon from '@mui/icons-material/Send';
+import SentimentSatisfiedSharpIcon from '@mui/icons-material/SentimentSatisfiedSharp';
+import Picker from 'emoji-picker-react';
+
+
+
+
+
+
+const style = {
+    chatFooter: {
+        width: '100%',
+        height: '100px',
+        position: 'absolute',
+        bottom: '0px',
+        left: '0px',
+        padding: '0px 10px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    input: {
+        width: '280px',
+        height: '45px',
+        backgroundColor: '#262626',
+        borderRadius: '10px',
+        padding: '0px 15px',
+        paddingTop: '6.7px'
+    },
+    sendBtn: {
+        '&:hover': {
+            backgroundColor: 'transparent'
+        }
+    },
+    emojiBtn: {
+        cursor: 'pointer',
+        color: 'text.secondary'
+    }
+}
+const ChatFooter = () => {
+
+    const [message, setMessage] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+
+
+
+    const onEmojiClick = (event, emojiObject) => {
+        setMessage(message+emojiObject.emoji);
+        setShowEmojiPicker(false);
+    };
+    return (
+        <Box sx={style.chatFooter}>
+            <TextField 
+                type='text'
+                placeholder='Send a message to everyone'
+                variant="standard"
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            <IconButton sx={style.emojiBtn} onClick={()=> setShowEmojiPicker(!showEmojiPicker)}>
+                                <SentimentSatisfiedSharpIcon />
+                            </IconButton>
+                        </InputAdornment>
+                    ),
+                    disableUnderline: true,
+                    style: { fontSize: '1rem', color: '#C4C5C5' }
+                }}
+                sx={style.input}
+                value={message}
+                onChange={(e)=> setMessage(e.target.value)}
+            ></TextField>
+            <IconButton sx={style.sendBtn}>
+                <SendIcon/>
+            </IconButton>
+
+            {
+                showEmojiPicker && <Picker pickerStyle={{ position: 'absolute', left:'10px', bottom: '100px'}} onEmojiClick={onEmojiClick}/>
+            }
+        </Box>
+    )
+}
+
+export default ChatFooter;

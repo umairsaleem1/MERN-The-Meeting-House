@@ -8,6 +8,7 @@ import TextInput from '../components/shared/TextInput';
 import StepsTitle from "../components/shared/StepsTitle";
 import LoginIcon from '@mui/icons-material/Login';
 import CustormAlert from '../components/shared/CustormAlert';
+import Navbar from "../components/shared/Navbar";
 
 
 
@@ -84,6 +85,8 @@ const Login = () => {
     }
     
     return (
+        <>
+        <Navbar/>
         <Box sx={style.container}>
 
             <Box sx={(theme)=>theme.stepsBoxStyle}>
@@ -111,13 +114,14 @@ const Login = () => {
                     <Button variant="text" sx={style.registerBtn} onClick={()=> navigate('/')}>Create account</Button>
                 </Typography>
 
-                <Button variant="text" sx={style.registerBtn} style={{marginLeft:'0px'}}>Forgot Password?</Button>
+                <Button variant="text" sx={style.registerBtn} style={{marginLeft:'0px'}} onClick={()=> navigate('/forgotpassword')}>Forgot Password?</Button>
 
             </Box>
 
             { alert.showAlert && <CustormAlert/> }
 
         </Box>
+        </>
     )
 }
 

@@ -17,11 +17,8 @@ const StepPassword = () => {
 
 
     const handleNextClick = ()=>{
-        if(!password.trim()){
-            dispatch(setErrorAlert({ message: 'Password is required!'}));
-            return;
-        }
-        if(password.length<=5){
+        
+        if(password.trim().length<5){
             dispatch(setErrorAlert({ message: 'Password must be of minimum 5 characters'}));
             return;
         }

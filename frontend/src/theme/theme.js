@@ -48,6 +48,24 @@ const theme = createTheme({
         '&:hover': {
             backgroundColor: 'blue'
         }
+    },
+    greenBtnStyle: {
+        backgroundColor: 'success.main',
+        color: 'text.primary',
+        borderRadius: '18px',
+        fontWeight: 'bold',
+        '&:hover': {
+            backgroundColor: 'success.main'
+        }
+    },
+    typography: {
+        fontFamily: [
+        //   "Nunito",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ].join(",")
     }
 })
 

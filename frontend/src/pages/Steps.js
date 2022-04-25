@@ -10,6 +10,7 @@ import StepEmail from '../components/steps/StepEmail';
 import StepPassword from '../components/steps/StepPassword';
 import StepActivation from '../components/steps/StepActivation';
 import CustormAlert from '../components/shared/CustormAlert';
+import Navbar from '../components/shared/Navbar';
 
 
 const style = {
@@ -28,6 +29,8 @@ const Setps = () => {
   const { step, alert } = useSelector((state)=> state.steps);
 
   return (
+    <>
+    <Navbar/>
     <Box sx={style.container}>
         { step===STEPS.LETSGO && <StepLetsGo/> }
         { step===STEPS.PHONEEMAIL && <StepPhoneEmail/> }
@@ -41,6 +44,7 @@ const Setps = () => {
         { alert.showAlert && <CustormAlert/> }
         
     </Box>
+    </>
   )
 }
 

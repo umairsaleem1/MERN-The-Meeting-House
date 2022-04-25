@@ -1,12 +1,14 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { v4 } = require('uuid');
 const Otp = require('../models/otp');
 const User = require('../models/user');
+const ResetPassword = require('../models/resetPassword');
 const sendEmail = require('../utils/sendEmail');
 const sendSMS = require('../utils/sendSMS');
 const upload = require('../middlewares/upload');
-// const { baseURL } = require('../utils/baseURL');
+const { baseURL } = require('../utils/baseURL');
 
 
 
@@ -147,7 +149,7 @@ router.post('/login', async (req, res)=>{
                 message: 'All fields are required!'
             });
         }
-
+        
         const user = await User.findOne({ email: email });
         if(!user){
             return res.status(401).json({
@@ -166,16 +168,15 @@ router.post('/login', async (req, res)=>{
         const refreshToken = await jwt.sign( {id: user._id}, process.env.REFRESH_TOKEN_SECRET);
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 180000)
+            expires: new Date(Date.now() + 3600000)
         });
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            expires: new Date(Date.now() + 604800000)
+            expires: new Date(Date.now() + 2592000000)
         })
 
         res.status(200).json({
-            accessToken,
-            refreshToken
+            message: 'User logged in successfully...'
         });
 
     }catch(e){
@@ -186,5 +187,93 @@ router.post('/login', async (req, res)=>{
     }
 })
 
+
+
+
+
+
+
+router.put('/forgotpassword', async (req, res)=>{
+    try{
+        const { email } = req.body;
+        if(!email){
+            return res.status(400).json({
+                message: 'Please provide email to get reset password link!'
+            });
+        }
+
+        const user = await User.findOne({ email: email });
+        if(!user){
+            return res.status(404).json({
+                message: 'User does not exists with the provided email!'
+            });
+        }
+
+        const token = v4().toString().replace(/-/g, '');
+        const resetLink = baseURL+token;
+
+        await ResetPassword.updateOne({userId:user._id}, {$set:{token:token, user:user._id}}, {upsert:true});
+
+        sendEmail(user.name, email, resetLink); 
+
+
+        res.status(201).json({
+            message: 'Password reset link has been sent to your email id'
+        });
+
+    }catch(e){
+        res.status(500).json({
+            message: 'Some problem occurred'
+        });
+        console.log(e);
+    }
+});
+
+
+
+
+
+
+
+router.patch('/resetpassword/:token', async (req, res)=>{
+    try{
+        const { token } = req.params;
+        const { newPassword } = req.body;
+        if(!token){
+            return res.status(403).json({
+                message: 'You are not eligible for making this request'
+            });
+        }
+        if(!newPassword){
+            return res.status(400).json({
+                message: 'New password is missing!'
+            });
+        }
+
+        const foundToken = await ResetPassword.findOne( { token: token });
+        if(!foundToken){
+            return res.status(404).json({
+                message: 'Looks like, reset password link has been expired!'
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+        await User.findByIdAndUpdate({ _id: foundToken.userId }, { $set: { password: hashedPassword }});
+        
+        await ResetPassword.findByIdAndDelete( { _id: foundToken._id } );
+
+
+        res.status(200).json({
+            message: 'Password has been reseted successfully...'
+        });
+
+    }catch(e){
+        res.status(500).json({
+            message: 'Some problem occurred'
+        });
+        console.log(e);
+    }
+});
 
 module.exports = router;
