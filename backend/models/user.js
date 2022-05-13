@@ -10,13 +10,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     avatar: {
-        type: String,
-        get: (avatar) => {
-            if (avatar) {
-                return `${baseURL}${avatar}`;
-            }
-            return avatar;
-        }
+        type: String
     },
     email: {
         type: String,

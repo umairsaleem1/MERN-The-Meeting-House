@@ -8,6 +8,8 @@ const ResetPassword = require('../models/resetPassword');
 const sendEmail = require('../utils/sendEmail');
 const sendSMS = require('../utils/sendSMS');
 const upload = require('../middlewares/upload');
+const auth = require('../middlewares/auth');
+const refreshToken = require('../middlewares/refreshToken');
 const { baseURL } = require('../utils/baseURL');
 
 
@@ -109,7 +111,7 @@ router.post('/register', upload.single('avatar'), async (req, res)=>{
         let avatar = '';
         if(req.file){
             // avatar = baseURL + req.file.path;
-            avatar = req.file.path;
+            avatar = req.file.filename;
             
         }
 
@@ -275,5 +277,31 @@ router.patch('/resetpassword/:token', async (req, res)=>{
         console.log(e);
     }
 });
+
+
+
+
+
+
+router.get('/authenticate', refreshToken, auth, async (req, res)=>{
+    try{
+        const user = await User.findById({ _id: req.id }).select({ password: 0 });
+        if(!user){
+            return res.status(404).json({
+                message: 'User not found!'
+            });
+        }
+
+        res.status(200).json({
+            user: user
+        });
+
+    }catch(e){
+        res.status(500).json({
+            message: 'Some problem occurred'
+        });
+        console.log(e);
+    }
+})
 
 module.exports = router;

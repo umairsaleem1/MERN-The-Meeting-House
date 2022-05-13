@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { baseURL } from '../config/baseURL';
+import { setUser } from './authSlice';
 
 
 
@@ -80,7 +80,7 @@ export function getOtp(method, receiver){
 
     return async function getOtpThunk(){
         try{
-            const res = await fetch(baseURL+'/auth/sendOtp', {
+            const res = await fetch('/auth/sendOtp', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -109,7 +109,7 @@ export function verifyOtp(receiver, otp){
         dispatch(setApiRequestFinished(false));
         let errorMessage;
         try{
-            const res = await fetch(baseURL+'/auth/verifyOtp', {
+            const res = await fetch('/auth/verifyOtp', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -158,7 +158,7 @@ export function registerUser(navigate){
                 formData.append('email', userData.email);
                 formData.append('password', userData.password);
 
-                const res = await fetch(baseURL+'/auth/register', {
+                const res = await fetch('/auth/register', {
                     method: 'POST',
                     body: formData
                 });
@@ -183,6 +183,7 @@ export function registerUser(navigate){
                 dispatch(setOtpDetails({ method: '', receiver: '' }));
                 dispatch(setUserData({ phone: '', name: '', avatar: null, email: '', password: '' }));
                 dispatch(setStep(STEPS.LETSGO));
+                dispatch(setUser(null));
                 navigate('/login');
 
             }catch(e){
@@ -206,10 +207,11 @@ export function loginUser(email, password, navigate){
         dispatch(setApiRequestFinished(false));
         let errorMessage;
         try{
-            const res = await fetch(baseURL+'/auth/login', {
+            const res = await fetch('/auth/login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
                 },
                 body: JSON.stringify({ email, password})
             })
@@ -231,7 +233,8 @@ export function loginUser(email, password, navigate){
 
             console.log(data);
             dispatch(setApiRequestFinished(true));
-            navigate('/rooms');
+            dispatch(setUser(null));
+            navigate('/');
 
             
         }catch(e){
@@ -256,7 +259,7 @@ export function getResetPassowrdLink(email){
         dispatch(setApiRequestFinished(false));
         let errorMessage;
         try{
-            const res = await fetch(baseURL+'/auth/forgotpassword', {
+            const res = await fetch('/auth/forgotpassword', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -298,7 +301,7 @@ export function resetPassword(newPassword, token, navigate){
         dispatch(setApiRequestFinished(false));
         let errorMessage;
         try{
-            const res = await fetch(`${baseURL}/auth/resetpassword/${token}`, {
+            const res = await fetch(`/auth/resetpassword/${token}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'

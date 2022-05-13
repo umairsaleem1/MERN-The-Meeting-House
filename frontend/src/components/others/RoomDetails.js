@@ -100,18 +100,18 @@ const RoomDetails = ( { openMeetingDetailsDialog, setOpenMeetingDetailsDialog } 
                     Which frontend framework is best?
                 </Typography>
                 <Grid container mt={2}>
-                    <Typography item variant='body2' sx={style.meetingDetailName}>
+                    <Typography variant='body2' sx={style.meetingDetailName}>
                         Host
                     </Typography>
-                    <Typography item variant='body2' sx={style.meetingDetailValue}>
+                    <Typography variant='body2' sx={style.meetingDetailValue}>
                         Umair Saleem
                     </Typography>
                 </Grid>
                 <Grid container flexWrap='wrap' mt={2}>
-                    <Typography item variant='body2' sx={style.meetingDetailName}>
+                    <Typography variant='body2' sx={style.meetingDetailName}>
                         Invite Link
                     </Typography>
-                    <Typography item variant='body2' sx={style.meetingDetailValue}>
+                    <Typography variant='body2' sx={style.meetingDetailValue}>
                         https://www.themeetinghouse.herokuapp.com/rooms/123456789123456778912
                     </Typography>
                 </Grid>

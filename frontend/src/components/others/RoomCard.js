@@ -30,7 +30,7 @@ const style = {
         color: 'text.secondary'
     }
 }
-const RoomCard = () => {
+const RoomCard = ( { room } ) => {
     const colors = ['#0077FF', '#20BD5F', '#F44336', '#E91E63', '#5453E0', 'yellow'];
     let randomNo = Math.floor(Math.random() * 6);
 
@@ -39,16 +39,16 @@ const RoomCard = () => {
         <Grid item sx={style.roomCard}>
 
             <Typography variant='h6' sx={style.roomTopic}>
-                Which framework is best for frontend?
+                { room.topic }
             </Typography>
 
             <Stack direction='row' alignItems='center' spacing={3} mt={2}>
 
-                <Avatar alt="avatar" src="/images/monkey-avatar.png" sx={{ border: `2px solid ${colors[randomNo]}` }} />
+                <Avatar alt={room.creator.name} src={room.creator.avatar} sx={{ border: `2px solid ${colors[randomNo]}` }} />
 
                 <Stack direction='row' alignItems='center' spacing={1}>
                     <Typography color='text.secondary'>
-                        Umair Saleem
+                        { room.creator.name }
                     </Typography>
                     <Typography color='text.primary'>
                         <ChatIcon/>
@@ -59,7 +59,7 @@ const RoomCard = () => {
 
             <Stack direction='row' alignItems='center' spacing={0.5} sx={style.participantsCount}>
                 <Typography>
-                    10
+                    { room.participants.length }
                 </Typography>
                 <Typography>
                     <PersonSharpIcon/>

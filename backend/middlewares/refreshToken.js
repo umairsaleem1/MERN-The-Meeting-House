@@ -7,14 +7,14 @@ const refreshToken = async (req, res, next)=>{
             next();
             return;
         }
-
+        
         const hasRefreshToken = req.cookies.refreshToken;
         if(!hasRefreshToken){
             return res.status(401).json({ 
                 message: 'Refresh token has been expired!'
             });
         }
-
+        
         const isVerified = await jwt.verify(hasRefreshToken, process.env.REFRESH_TOKEN_SECRET);
         
         const newAccessToken = await jwt.sign({ id: isVerified.id }, process.env.ACCESS_TOKEN_SECRET);

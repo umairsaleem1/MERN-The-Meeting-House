@@ -1,0 +1,54 @@
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setSocket, setSocketEventsRegistered, setOnlineUsers, setRoomsParticipants } from "../redux/roomsSlice";
+import io from 'socket.io-client';
+import { baseURL } from "../config/baseURL";
+
+
+export const useSocket = () => {
+
+    const { rooms: { socket, socketEventsRegistered }, auth: { user } } = useSelector((state)=> state);
+    const dispatch = useDispatch();
+
+
+
+
+
+    useEffect(()=>{
+
+        if(user){
+
+            if(!socket){
+
+                const socketConn = io(baseURL, { transports: ['websocket']});
+                dispatch(setSocket(socketConn));
+                
+            }
+            else if(socket && !socketEventsRegistered){
+                
+                socket.emit('new connection', user._id);
+
+                
+                socket.on('onlineUsers', (users)=>{
+                    dispatch(setOnlineUsers(users));
+                });
+
+
+                socket.on('updatedRoomsParticipants', (participants)=>{
+                    dispatch(setRoomsParticipants(participants));
+                });
+        
+
+
+                dispatch(setSocketEventsRegistered(true));
+
+            }
+
+        }
+
+    }, [socket, dispatch, user, socketEventsRegistered]);
+
+
+
+
+}

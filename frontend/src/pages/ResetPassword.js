@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { setErrorAlert, resetPassword } from '../redux/stepsSlice';
@@ -21,26 +21,7 @@ const style = {
         justifyContent: 'center',
         alignItems: 'center',
         marginTop:'80px'
-    },
-    spinner: {
-        height: '25px',
-        width: '25px' 
-    },
-    spinnerBtn: {
-        width: '110px',
-        backgroundColor: 'blue',
-        marginTop: '50px',
-        borderRadius: '18px',
-        '&:hover': {
-            backgroundColor: 'blue'
-        },
-        '&:disabled': {
-            backgroundColor: '#79aef0',
-            opacity: '0.8',
-            cursor: 'not-allowed',
-            pointerEvents: 'all !important'
-        }
-    },
+    }
 }
 const ResetPassword = () => {
 
@@ -76,7 +57,7 @@ const ResetPassword = () => {
                     New password will be used to get access to your account
                 </Typography>
 
-                <Button variant='contained' endIcon={apiRequestFinished && <ArrowForwardIcon/>} sx={!apiRequestFinished ? style.spinnerBtn : (theme)=>theme.btnStyle} onClick={handleSubmit} disabled={!apiRequestFinished}>
+                <Button variant='contained' endIcon={apiRequestFinished && <ArrowForwardIcon/>} sx={(theme)=>theme.btnStyle} style={ !apiRequestFinished ? { width: '108px' } : null } onClick={handleSubmit} disabled={!apiRequestFinished}>
                     {   
                         apiRequestFinished
                         ?
@@ -84,7 +65,7 @@ const ResetPassword = () => {
                         Submit
                         </>
                         :
-                        <img src='/images/spinner.gif' alt='loader' style={style.spinner} /> 
+                        <CircularProgress color='error' size={24}/>
                     }
                 </Button>
 

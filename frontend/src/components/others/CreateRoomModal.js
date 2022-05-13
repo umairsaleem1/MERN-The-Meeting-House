@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Grid, Box, TextField, Typography, Button, IconButton, Modal, Backdrop, Fade, Avatar } from '@mui/material';
+import { Grid, Box, TextField, Typography, Button, IconButton, Modal, Backdrop, Fade, Avatar, CircularProgress } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { useDispatch } from 'react-redux';
+import { createRoom } from '../../redux/roomsSlice';
 
 
 
@@ -60,8 +62,11 @@ const style = {
 }
 const CreateRoomModal = ( { openModal, setOpenModal } ) => {
 
+    const [topic, setTopic] = useState('');
     const [selectedRoomType, setSelectedRoomType] = useState('public');
-    const [roomDesc, setRoomDesc] = useState('Start a room, open to everyone')
+    const [roomDesc, setRoomDesc] = useState('Start a room, open to everyone');
+    const [showLoader, setShowLoader] = useState(false);
+    const dispatch = useDispatch();
 
 
     const handlePublicRoomTypeClick = ()=>{
@@ -73,6 +78,10 @@ const CreateRoomModal = ( { openModal, setOpenModal } ) => {
         setRoomDesc('Start a room, open to selected people');
     }
 
+
+    const handleCreateRoom = ()=>{
+        dispatch(createRoom({ topic, selectedRoomType }, setTopic, setSelectedRoomType, setShowLoader, setOpenModal));
+    }
 
     return (
         <Modal
@@ -103,6 +112,9 @@ const CreateRoomModal = ( { openModal, setOpenModal } ) => {
                             style: { fontSize: '1.2rem', color: '#C4C5C5' }
                         }}
                         variant="standard"
+                        required
+                        value={topic}
+                        onChange={(e)=> setTopic(e.target.value)}
                     />
 
                     <Typography variant='h6' sx={style.topic} my={2}>
@@ -133,9 +145,17 @@ const CreateRoomModal = ( { openModal, setOpenModal } ) => {
                     </Typography> 
 
                     <Grid container justifyContent='center'>
-                        <Button item variant='container' sx={(theme)=>theme.greenBtnStyle}>
-                            <img src='/images/celebration.png' alt='celebrationImage' /> 
-                            &nbsp;Let's Go
+                        <Button item variant='container' sx={(theme)=>theme.greenBtnStyle} style={ showLoader ? { width: '118px' } : null } disabled={showLoader} onClick={handleCreateRoom}>
+                            {
+                                showLoader
+                                ?
+                                <CircularProgress color='error' size={24}/>
+                                :
+                                <>
+                                <img src='/images/celebration.png' alt='celebrationImage' /> 
+                                &nbsp;Let's Go
+                                </>
+                            }
                         </Button>
                     </Grid>
 

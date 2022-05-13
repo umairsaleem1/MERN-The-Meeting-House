@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, CircularProgress } from '@mui/material';
 import AuthCode from 'react-auth-code-input';
 import { useDispatch, useSelector } from 'react-redux';
 import { getOtp, verifyOtp } from '../../redux/stepsSlice';
@@ -16,25 +16,6 @@ const style = {
         fontWeight: 'bold',
         '&:hover': {
             backgroundColor: 'background.secondary'
-        }
-    },
-    spinner: {
-        height: '25px',
-        width: '25px' 
-    },
-    spinnerBtn: {
-        width: '90px',
-        backgroundColor: 'blue',
-        marginTop: '50px',
-        borderRadius: '18px',
-        '&:hover': {
-            backgroundColor: 'blue'
-        },
-        '&:disabled': {
-            backgroundColor: '#79aef0',
-            opacity: '0.8',
-            cursor: 'not-allowed',
-            pointerEvents: 'all !important'
         }
     }
 }
@@ -69,7 +50,7 @@ const StepOtp = () => {
                 <Button variant="text" sx={style.resendBtn} onClick={()=>dispatch(getOtp(method, receiver))}>Resend</Button>
             </Typography>
 
-            <Button variant='contained' endIcon={ apiRequestFinished && <ArrowForwardIcon/>} sx={ !apiRequestFinished ? style.spinnerBtn : (theme)=>theme.btnStyle } onClick={handleNextClick} disabled={!apiRequestFinished}>
+            <Button variant='contained' endIcon={ apiRequestFinished && <ArrowForwardIcon/>} sx={(theme)=>theme.btnStyle } style={ !apiRequestFinished ? { width: '90px' } : null } onClick={handleNextClick} disabled={!apiRequestFinished}>
                 {
                     apiRequestFinished
                     ?
@@ -77,7 +58,7 @@ const StepOtp = () => {
                     Next
                     </>
                     :
-                    <img src='/images/spinner.gif' alt='loader' style={style.spinner} /> 
+                    <CircularProgress color='error' size={24}/>
                 }
             </Button>
         

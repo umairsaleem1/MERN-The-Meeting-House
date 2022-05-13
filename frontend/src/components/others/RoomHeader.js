@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Grid, Box, IconButton, Button } from "@mui/material";
+import { Grid, IconButton, Button } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { useSelector } from 'react-redux';
 import EndRoom from "./EndRoom";
 import RoomDetails from "./RoomDetails";
 
@@ -33,34 +34,41 @@ const style = {
         }
     }
 }
-const RoomHeader = () => {
+const RoomHeader = ( { roomId }) => {
 
+    const { socket } = useSelector((state)=> state.rooms);
     const [openMeetingDetailsDialog, setOpenMeetingDetailsDialog] = useState(false);
     const [openEndMeetingDialog, setOpenEndMeetingDialog] = useState(false);
     const navigate = useNavigate();
 
+
+    const handleBackBtnClick = ()=>{
+        socket.emit('leave room', roomId);
+        navigate('/');
+    }
+
     return (
         <Grid container alignItems='center' justifyContent='space-between' sx={style.container}>
             
-            <Box item>
-                <IconButton onClick={()=> navigate('/rooms')}>
+            <Grid item>
+                <IconButton onClick={handleBackBtnClick}>
                     <ArrowBackIcon/>
                 </IconButton>
-            </Box>
+            </Grid>
 
-            <Box item>
+            <Grid item>
                 <Button endIcon={<KeyboardArrowDownIcon/>} sx={style.meetingDetailsBtn} onClick={()=> setOpenMeetingDetailsDialog(true)}>
                     Room details
                 </Button>
-            </Box>
+            </Grid>
 
             <RoomDetails openMeetingDetailsDialog={openMeetingDetailsDialog} setOpenMeetingDetailsDialog={setOpenMeetingDetailsDialog}/>
 
-            <Box item>
+            <Grid item>
                 <Button sx={style.endBtn} onClick={()=> setOpenEndMeetingDialog(true)}>
                     End
                 </Button>
-            </Box>
+            </Grid>
             
             <EndRoom openEndMeetingDialog={openEndMeetingDialog} setOpenEndMeetingDialog={setOpenEndMeetingDialog}/>
 

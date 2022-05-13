@@ -1,6 +1,6 @@
 import { useState } from "react";
 import validator from "validator";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, CircularProgress } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { setErrorAlert, loginUser } from "../redux/stepsSlice";
@@ -23,25 +23,6 @@ const style = {
         justifyContent: 'center',
         alignItems: 'center',
         marginTop:'80px'
-    },
-    spinner: {
-        height: '25px',
-        width: '25px' 
-    },
-    spinnerBtn: {
-        width: '100px',
-        backgroundColor: 'blue',
-        marginTop: '50px',
-        borderRadius: '18px',
-        '&:hover': {
-            backgroundColor: 'blue'
-        },
-        '&:disabled': {
-            backgroundColor: '#79aef0',
-            opacity: '0.8',
-            cursor: 'not-allowed',
-            pointerEvents: 'all !important'
-        }
     },
     newUser: {
         color: 'blue',
@@ -97,7 +78,7 @@ const Login = () => {
                 <TextInput type='password' placeholder='Enter password' setValue={setPassword}/>
                 <br/>
 
-                <Button variant='contained' endIcon={apiRequestFinished && <LoginIcon />} sx={!apiRequestFinished ? style.spinnerBtn : (theme)=>theme.btnStyle} onClick={handleLogin} disabled={!apiRequestFinished}>
+                <Button variant='contained' endIcon={apiRequestFinished && <LoginIcon />} sx={(theme)=>theme.btnStyle} style={ !apiRequestFinished ? { width: '95px' } : null } onClick={handleLogin} disabled={!apiRequestFinished}>
                     {
                         apiRequestFinished
                         ?
@@ -105,13 +86,13 @@ const Login = () => {
                         Login
                         </>
                         :
-                        <img src='/images/spinner.gif' alt='loader' style={style.spinner} />   
+                        <CircularProgress color='error' size={24}/>
                     }
                 </Button>
 
                 <Typography variant='body1' sx={style.newUser}>
                     New user? 
-                    <Button variant="text" sx={style.registerBtn} onClick={()=> navigate('/')}>Create account</Button>
+                    <Button variant="text" sx={style.registerBtn} onClick={()=> navigate('/register')}>Create account</Button>
                 </Typography>
 
                 <Button variant="text" sx={style.registerBtn} style={{marginLeft:'0px'}} onClick={()=> navigate('/forgotpassword')}>Forgot Password?</Button>

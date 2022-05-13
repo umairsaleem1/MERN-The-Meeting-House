@@ -28,6 +28,7 @@ const style = {
 const Setps = () => {
   const { step, alert } = useSelector((state)=> state.steps);
 
+
   return (
     <>
     <Navbar/>

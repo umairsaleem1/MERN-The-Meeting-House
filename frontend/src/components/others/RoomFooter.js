@@ -7,9 +7,8 @@ import GroupIcon from '@mui/icons-material/Group';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
-import { Grid, Box, IconButton, Typography } from '@mui/material';
+import { Grid, IconButton, Typography } from '@mui/material';
 import Share from './Share';
-import WebURLModal from './WebURLModal';
 import Participants from './Participants';
 import Chat from './Chat';
 
@@ -44,14 +43,13 @@ const RoomFooter = () => {
     const [playingAudio, setPlayingAudio] = useState(true);
     const [playingVideo, setPlayingVideo] = useState(true);
     const [openShareDialog, setOpenShareDialog] = useState(false);
-    const [openWebURLModal, setOpenWebURLModal] = useState(false);
     const [openParticipantsDialog, setOpenParticipantsDialog] = useState(false);
     const [openChatDialog, setOpenChatDialog] = useState(false);
 
     return (
         <Grid container justifyContent='space-evenly' alignItems='center' sx={style.roomFooter}>
             
-            <Box item>
+            <Grid item>
                 <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={()=> setPlayingAudio(!playingAudio)}>
                     {
                         playingAudio
@@ -74,9 +72,9 @@ const RoomFooter = () => {
                         }
                     </Typography>
                 </IconButton>
-            </Box>
+            </Grid>
 
-            <Box item>
+            <Grid item>
                 <IconButton sx={style.iconBtn} onClick={()=> setPlayingVideo(!playingVideo)}>
                     {
                         playingVideo
@@ -99,9 +97,9 @@ const RoomFooter = () => {
                         }
                     </Typography>
                 </IconButton>
-            </Box>
+            </Grid>
 
-            <Box item>
+            <Grid item>
                 <IconButton sx={style.iconBtn} color='success' onClick={()=> setOpenShareDialog(true)}>
                     <ScreenShareIcon sx={style.iconBtnIcon}/>
                     {/* <ShareIcon sx={style.iconBtnIcon}/> */}
@@ -109,30 +107,29 @@ const RoomFooter = () => {
                         Share
                     </Typography>
                 </IconButton>
-            </Box>
+            </Grid>
 
-            <Share openShareDialog={openShareDialog} setOpenShareDialog={setOpenShareDialog} setOpenWebURLModal={setOpenWebURLModal}/>
-            <WebURLModal openWebURLModal={openWebURLModal} setOpenWebURLModal={setOpenWebURLModal}/>
+            <Share openShareDialog={openShareDialog} setOpenShareDialog={setOpenShareDialog}/>
 
-            <Box item>
+            <Grid item>
                 <IconButton sx={style.iconBtn} onClick={()=> setOpenParticipantsDialog(true)}>
                     <GroupIcon sx={style.iconBtnIcon}/>
                     <Typography color='text.primary'>
                         Participants
                     </Typography>
                 </IconButton>
-            </Box>
+            </Grid>
 
             <Participants openParticipantsDialog={openParticipantsDialog} setOpenParticipantsDialog={setOpenParticipantsDialog}/>
 
-            <Box item>
+            <Grid item>
                 <IconButton sx={style.iconBtn} onClick={()=> setOpenChatDialog(true)}>
                     <ChatBubbleIcon sx={style.iconBtnIcon}/>
                     <Typography color='text.primary'>
                         Chat
                     </Typography>
                 </IconButton>
-            </Box>
+            </Grid>
 
             <Chat openChatDialog={openChatDialog} setOpenChatDialog={setOpenChatDialog}/>
 

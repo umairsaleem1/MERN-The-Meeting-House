@@ -3,7 +3,6 @@ import { Box, Button, Dialog, Slide } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import PhotoSizeSelectActualOutlinedIcon from '@mui/icons-material/PhotoSizeSelectActualOutlined';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import ScreenShareOutlinedIcon from '@mui/icons-material/ScreenShareOutlined';
 
 
@@ -14,9 +13,9 @@ const style = {
     shareDialog: {
         position: 'fixed',
         left: 'calc(50% - 175px)',
-        top: 'calc(100% - 334px)',
+        top: 'calc(100% - 280px)',
         width: '350px',
-        height: '334px'
+        height: '280px',
     },
     share: {
         padding: '20px',
@@ -67,12 +66,8 @@ const Input = styled('input')({
     display: 'none',
 });
 
-const Share = ( { openShareDialog, setOpenShareDialog, setOpenWebURLModal } ) => {
+const Share = ( { openShareDialog, setOpenShareDialog } ) => {
 
-    const handleWebURLBtnClick = ()=>{
-        setOpenShareDialog(false);
-        setOpenWebURLModal(true);
-    }
     return (
         <Dialog
             open={openShareDialog}
@@ -111,10 +106,6 @@ const Share = ( { openShareDialog, setOpenShareDialog, setOpenWebURLModal } ) =>
                             <InsertDriveFileOutlinedIcon sx={style.shareItemBtnIcon}/>
                         </Button>
                     </label>
-                    <Button sx={style.shareItemBtn} onClick={handleWebURLBtnClick}>
-                        Web URL
-                        <LinkOutlinedIcon sx={style.shareItemBtnIcon}/>
-                    </Button>
                     <Button sx={style.shareItemBtn}>
                         Screen
                         <ScreenShareOutlinedIcon sx={style.shareItemBtnIcon}/>

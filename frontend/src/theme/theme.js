@@ -47,6 +47,12 @@ const theme = createTheme({
         fontWeight: 'bold',
         '&:hover': {
             backgroundColor: 'blue'
+        },
+        '&:disabled': {
+            backgroundColor: '#79aef0',
+            opacity: '0.8',
+            cursor: 'not-allowed',
+            pointerEvents: 'all !important'
         }
     },
     greenBtnStyle: {
@@ -56,6 +62,11 @@ const theme = createTheme({
         fontWeight: 'bold',
         '&:hover': {
             backgroundColor: 'success.main'
+        },
+        '&:disabled': {
+            cursor: 'not-allowed',
+            pointerEvents: 'all !important',
+            backgroundColor: '#addfad'
         }
     },
     typography: {
