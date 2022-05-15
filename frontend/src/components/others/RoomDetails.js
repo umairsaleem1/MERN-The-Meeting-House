@@ -60,7 +60,7 @@ const style = {
         marginTop: '15px'
     }
 }
-const RoomDetails = ( { openMeetingDetailsDialog, setOpenMeetingDetailsDialog } ) => {
+const RoomDetails = ( { openMeetingDetailsDialog, setOpenMeetingDetailsDialog, roomId } ) => {
 
     const [invitationLinkCopied, setInvitationLinkCopied] = useState(false);
 
@@ -112,7 +112,7 @@ const RoomDetails = ( { openMeetingDetailsDialog, setOpenMeetingDetailsDialog } 
                         Invite Link
                     </Typography>
                     <Typography variant='body2' sx={style.meetingDetailValue}>
-                        https://www.themeetinghouse.herokuapp.com/rooms/123456789123456778912
+                        https://www.themeetinghouse.herokuapp.com/rooms/{roomId}
                     </Typography>
                 </Grid>
 

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { baseURL } from '../../config/baseURL';
 import { getUser } from '../../redux/authSlice';
 
 const style = {
@@ -74,7 +73,7 @@ const Navbar = () => {
           </Typography>
           <Avatar
             alt={user.name}
-            src={ user.avatar ? `${baseURL}/${user.avatar}` : '/images/monkey-avatar.png'}
+            src={ user.avatar || '/images/monkey-avatar.png'}
             sx={style.avatar}
           />
           <Tooltip title="Logout">

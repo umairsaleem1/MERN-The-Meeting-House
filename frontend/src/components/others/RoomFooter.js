@@ -38,7 +38,7 @@ const style = {
         fontSize: '35px'
     }
 }
-const RoomFooter = () => {
+const RoomFooter = ( { myStream } ) => {
 
     const [playingAudio, setPlayingAudio] = useState(true);
     const [playingVideo, setPlayingVideo] = useState(true);
@@ -46,32 +46,43 @@ const RoomFooter = () => {
     const [openParticipantsDialog, setOpenParticipantsDialog] = useState(false);
     const [openChatDialog, setOpenChatDialog] = useState(false);
 
+
+
+    const muteAudio = ()=>{
+        if(myStream && myStream.getAudioTracks().length>0){
+            myStream.getAudioTracks()[0].enabled = false;
+            setPlayingAudio(false);
+
+            // here emit a socket event to notify all other sockets in the room that this users' mic has been muted
+        }
+    }
+
+    const unMuteAudio = ()=>{
+        if(myStream && myStream.getAudioTracks().length>0){
+            myStream.getAudioTracks()[0].enabled = true;
+            setPlayingAudio(true);
+
+            // here emit a socket event to notify all other sockets in the room that this users' mic has been unmuted
+        }
+    }
+
     return (
         <Grid container justifyContent='space-evenly' alignItems='center' sx={style.roomFooter}>
             
             <Grid item>
-                <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={()=> setPlayingAudio(!playingAudio)}>
-                    {
-                        playingAudio
-                        ?
+                {
+                    playingAudio
+                    ?
+                    <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={muteAudio}>
                         <MicIcon sx={style.iconBtnIcon}/>
-                        :
+                        <Typography color='text.primary'>Mute</Typography>
+                    </IconButton>
+                    :
+                    <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={unMuteAudio}>
                         <MicOffIcon sx={style.iconBtnIcon}/>
-                    }
-                    <Typography color='text.primary'>
-                        {
-                            playingAudio
-                            ?
-                            <>
-                            Mute
-                            </>
-                            :
-                            <>
-                            Unmute
-                            </>
-                        }
-                    </Typography>
-                </IconButton>
+                        <Typography color='text.primary'>Unmute</Typography>
+                    </IconButton>
+                }
             </Grid>
 
             <Grid item>

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Grid, Box, Typography } from '@mui/material';
+import { Grid, Box, Typography, Snackbar, Alert } from '@mui/material';
 import Peer from 'peerjs';
 import { useSelector, useDispatch } from 'react-redux';
-import { getSingleRoom, setRoomsParticipants } from '../redux/roomsSlice';
+import { getSingleRoom, setOpenedRoomParticipants, appendStreamToRemoteUsersStreams } from '../redux/roomsSlice';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from "swiper";
@@ -89,24 +89,23 @@ const style = {
     }
 }
 
+export let peer = null;
 
-let peer = null;
+const SingleRoom = () => { 
 
-const SingleRoom = () => {
-
-    const { rooms: { socket, openedRoom }, auth: { user } } = useSelector((state)=> state);
+    const { rooms: { socket, openedRoom, openedRoomParticipants, remoteUsersStreams }, auth: { user } } = useSelector((state)=> state);
+    const [alert, setAlert] = useState({ showAlert: false, severity: '', message: ''});
     const [myStream, setMyStream] = useState(null);
-    const [remoteUsersStreams, setRemoteUsersStreams] = useState([]);
     const { roomId } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const myVideoRef = useRef();
     useSocket();
 
+    
+    
 
-
-
-
+    
 
 
 
@@ -142,59 +141,70 @@ const SingleRoom = () => {
 
                 peer.on('open', ()=>{
 
-                    socket.emit('join room', roomId, user._id);
+                    socket.emit('join room', roomId, user._id, user.avatar, user.name);
 
-                    socket.on('roomsParticipants', (roomsParticipants)=>{
-
-                        dispatch(setRoomsParticipants(roomsParticipants));
-    
-                        const currentRoomParticipants = Object.values(roomsParticipants[roomId]);
-                        let myIdIndex = currentRoomParticipants.indexOf(user._id);
-                        currentRoomParticipants.splice(myIdIndex, 1);
+                    socket.on('roomParticipants', (roomParticipants)=>{
                         
+                        dispatch(setOpenedRoomParticipants(roomParticipants));
+                       
+                        const currentRoomParticipants = {...roomParticipants };
+                        delete currentRoomParticipants[user._id];
+                    
+                        const remotePeersIds = Object.keys(currentRoomParticipants);
+                        [
+                            ...new Map(remotePeersIds.map((item)=>[item, item])).values()
+                        ].forEach((remotePeerId)=>{
 
-                        const otherPeerIds = Object.values(currentRoomParticipants);
-                        otherPeerIds.forEach((otherPeerId)=>{
+                            const mediaConnection = peer.call(remotePeerId, myStream);
 
-                            const mediaConnection = peer.call(otherPeerId, myStream);
-                            
                             let id;
                             mediaConnection.on('stream', (remoteUserStream)=>{
                                 if(id!==remoteUserStream.id){
                                     id = remoteUserStream.id;
-                                    console.log(remoteUserStream);
-                                    setRemoteUsersStreams([...remoteUsersStreams, remoteUserStream]);
+                                    dispatch(appendStreamToRemoteUsersStreams({ peerId: mediaConnection.peer, stream: remoteUserStream }));
                                 }
                             });
 
-                        })
+                            mediaConnection.on('error', (err)=>{
+                                console.log(err);
+                                setAlert({ setAlert: true, severity: 'error', message: 'Connection failure!'});
+                            })
+
+                        });
+                        
                     })
     
     
                     peer.on('call', (mediaConnection)=>{
-                        // console.log('call received')
+
                         mediaConnection.answer(myStream);
     
                         let id;
                         mediaConnection.on('stream', (remoteUserStream)=>{
                             if(id!==remoteUserStream.id){
                                 id = remoteUserStream.id;
-                                // console.log('stream received')
-                                setRemoteUsersStreams([...remoteUsersStreams, remoteUserStream]);
-                                console.log(remoteUserStream);
+                                dispatch(appendStreamToRemoteUsersStreams({ peerId: mediaConnection.peer, stream: remoteUserStream }));
                             }
                         });
                     }) 
+
+                    
+                    peer.on('error', (err)=>{
+                        console.log(err);
+                        setAlert({ showAlert: true, severity: 'error', message: 'Connection failure!'});
+                    })
+
                 })  
 
             })
             .catch((e)=>{
                 console.log(e);
+                setAlert({ showAlert: true, severity: 'error', message: 'Cannot get local microphone or camera'});
             })
 
         }
   
-    }, [socket, roomId, openedRoom, user._id])
+    }, [socket, roomId, openedRoom, user._id, user.name, user.avatar, dispatch])
 
 
 
@@ -203,52 +213,69 @@ const SingleRoom = () => {
 
 
     return (
-        <Box sx={style.container}>
-            <RoomHeader roomId={roomId}/>
-            <Box sx={style.swiperContainer}>
-                <Swiper
-                    modules={[Pagination]}
-                    spaceBetween={50}
-                    slidesPerView={1}
-                    pagination={{ clickable: true }}
-                    scrollbar={{ draggable: true }}
-                    onSlideChange={() => console.log('slide change')}
-                    style={style.swiper}
-                >
-                    <SwiperSlide>
-                        <Box sx={style.myVideoContainer}>
-                            {/* <img alt='avatar' src='/images/monkey-avatar.png' sx={style.media}/> */}
-                            <video style={style.media} muted ref={myVideoRef}></video>
-                            <Typography variant='h6' sx={style.name}>
-                                { user.name ? user.name : '' }
-                            </Typography>
-                        </Box>
-                    </SwiperSlide> 
-                    <SwiperSlide>
-                        <Grid container justifyContent='space-evenly' sx={style.guestsContainer}>
-                            {
-                                remoteUsersStreams.length
-                                ?
-                                remoteUsersStreams.map((stream)=>{  
+        <>
+            <Box sx={style.container}>
+                <RoomHeader roomId={roomId} peer={peer}/>
+                <Box sx={style.swiperContainer}>
+                    <Swiper
+                        modules={[Pagination]}
+                        spaceBetween={50}
+                        slidesPerView={1}
+                        pagination={{ clickable: true }}
+                        scrollbar={{ draggable: true }}
+                        onSlideChange={() => console.log('slide change')}
+                        style={style.swiper}
+                    >
+                        <SwiperSlide>
+                            <Box sx={style.myVideoContainer}>
+                                {/* <img alt='avatar' src='/images/monkey-avatar.png' sx={style.media}/> */}
+                                <video style={style.media} muted ref={myVideoRef}></video>
+                                <Typography variant='h6' sx={style.name}>
+                                    { user.name ? user.name : '' }
+                                </Typography>
+                            </Box>
+                        </SwiperSlide> 
+                        <SwiperSlide>
+                            <Grid container justifyContent='space-evenly' sx={style.guestsContainer}>
+                                {
+                                    remoteUsersStreams.length
+                                    ?
+                                    [
+                                        ...new Map(remoteUsersStreams.map((item)=>[item["peerId"], item])).values()
+                                    ].map(( { peerId, stream } )=>{  
 
-                                return <Grid item sx={style.guest} key={stream.id}>
-                                        <GuestVideo stream={stream} style={style}/>
-                                        {/* <img alt='avatar' src='/images/monkey-avatar.png' sx={style.guestAvatar}/> */}
-                                        <Typography variant='body1' sx={style.guestName}>
-                                            Umair Saleem
-                                        </Typography>
-                                    </Grid>
-                                })
-                                :
-                                null
-                            }
-                        </Grid>
-                    </SwiperSlide>
-                </Swiper>
+                                        return <Grid item sx={style.guest} key={stream.id}>
+                                            <GuestVideo stream={stream} style={style}/>
+                                            {/* <img alt='avatar' src='/images/monkey-avatar.png' sx={style.guestAvatar}/> */}
+                                            <Typography variant='body1' sx={style.guestName}>
+                                                { 
+                                                    openedRoomParticipants[peerId]
+                                                    ?
+                                                    openedRoomParticipants[peerId].name
+                                                    :
+                                                    ''
+                                                }
+                                            </Typography>
+                                        </Grid>
+                                    })
+                                    :
+                                    null
+                                }
+                            </Grid>
+                        </SwiperSlide>
+                    </Swiper>
+                </Box>
+                <RoomFooter myStream={myStream}/>
+
             </Box>
-            <RoomFooter/>
-
-        </Box>
+            {
+            alert.showAlert && <Snackbar open={alert.showAlert} autoHideDuration={3000} onClose={()=>setAlert({ showAlert: false, severity: '', message: '' })}>
+                <Alert onClose={()=>setAlert({ showAlert: false, severity: '', message: '' })} severity={alert.severity} sx={{ width: '100%' }} variant='filled'>
+                    { alert.message }
+                </Alert>
+            </Snackbar>
+            }
+        </>
     )
 }
 

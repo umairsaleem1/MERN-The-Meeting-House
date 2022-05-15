@@ -10,7 +10,9 @@ const roomsSlice = createSlice({
         socketEventsRegistered: false,
         onlineUsers: [],
         openedRoom: null,
-        roomsParticipants: null
+        openedRoomParticipants: null,
+        remoteUsersStreams: [],
+        roomEndedForAll: false
     },
     reducers: {
         setRooms(state, action){
@@ -28,15 +30,32 @@ const roomsSlice = createSlice({
         setOpenedRoom(state, action){
             state.openedRoom = action.payload;
         },
-        setRoomsParticipants(state, action){
-            state.roomsParticipants = action.payload;
+        setOpenedRoomParticipants(state, action){
+            state.openedRoomParticipants = action.payload;
+        },
+        setRemoteUsersStreams(state, action){
+            state.remoteUsersStreams = action.payload;
+        },
+        appendStreamToRemoteUsersStreams(state, action){
+            state.remoteUsersStreams = [...state.remoteUsersStreams, action.payload];
+        },
+        removeStreamFromRemoteUsersStreams(state, action){
+
+            let updatedStreams = state.remoteUsersStreams.filter((stream)=>{
+                return stream.peerId!==action.payload.userId;
+            })
+            
+            state.remoteUsersStreams = updatedStreams;
+        },
+        setRoomEndedForAll(state, action){
+            state.roomEndedForAll = action.payload;
         }
     }
 });
 
 
 
-export const { setRooms, setSocket, setSocketEventsRegistered, setOnlineUsers, setOpenedRoom, setRoomsParticipants } = roomsSlice.actions;
+export const { setRooms, setSocket, setSocketEventsRegistered, setOnlineUsers, setOpenedRoom, setOpenedRoomParticipants, setRemoteUsersStreams, appendStreamToRemoteUsersStreams, removeStreamFromRemoteUsersStreams, setRoomEndedForAll } = roomsSlice.actions;
 export default roomsSlice.reducer;
 
 

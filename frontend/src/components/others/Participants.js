@@ -4,6 +4,7 @@ import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+import { useSelector } from 'react-redux';
 
 
 
@@ -85,9 +86,12 @@ const TransitionComponent = React.forwardRef(function TransitionComponent(props,
     return <Slide direction="left" ref={ref} {...props} />;
 });
 const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog } ) => {
+
+    const { rooms: { openedRoom, openedRoomParticipants, remoteUsersStreams }, auth: { user } } = useSelector((state)=>state);
     
     const playingAudio = true;
     const playingVideo = true;
+    const colors = ['#0077FF', '#20BD5F', '#F44336', '#E91E63', '#5453E0', 'yellow'];
 
     return (
         <Dialog
@@ -117,40 +121,154 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog } ) =
                         Close
                     </Button>
                     <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
-                        Participants (1)
+                        {
+                            openedRoomParticipants
+                            ?
+                            `Participants (${Object.keys(openedRoomParticipants).length})`
+                            :
+                            ''
+                        }
                     </Typography>
                     <Button  variant='contained' sx={style.muteAllBtn}>
                         Mute All
                     </Button>
                 </Box>
                 <Box sx={style.participantsList}>
-                    <Box sx={style.participant}>
-                        <Box sx={style.participantLeft}>
-                            <Avatar alt='avatar' src='/images/monkey-avatar.png' sx={style.avatar}/>
-                            <Typography variant='body1' sx={style.name}>
-                                Umair Saleem
-                            </Typography>
-                            <Typography variant='body2' sx={style.role}>
-                                (Host, me)
-                            </Typography>
+                    {
+                        openedRoom && openedRoomParticipants && openedRoomParticipants[openedRoom.creator]
+                        ?
+                        <Box sx={style.participant} key={openedRoom.creator}>
+                            <Box sx={style.participantLeft}>
+                                <Avatar 
+                                    alt={openedRoomParticipants[openedRoom.creator].name} 
+                                    src={openedRoomParticipants[openedRoom.creator].avatar || '/images/monkey-avatar.png'} 
+                                    sx={style.avatar}
+                                    style={{ border: `2px solid ${colors[Math.floor(Math.random() * 6)]}` }}
+                                />
+                                <Typography variant='body1' sx={style.name}>
+                                    {openedRoomParticipants[openedRoom.creator].name}
+                                </Typography>
+                                <Typography variant='body2' sx={style.role}>
+                                    {
+                                        openedRoom.creator===user._id
+                                        ?
+                                        '(Host, me)'
+                                        :
+                                        '(Host)'
+                                    }
+                                </Typography>
+                            </Box>
+                            <Box>
+                                {
+                                    playingAudio
+                                    ?
+                                    <MicIcon style={{ marginRight: '10px' }}/>
+                                    :
+                                    <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
+                                }
+                                {
+                                    playingVideo
+                                    ?
+                                    <VideocamIcon/>
+                                    :
+                                    <VideocamOffIcon style={{ color: '#F44336' }}/>
+                                }
+                            </Box>
                         </Box>
-                        <Box>
-                            {
-                                playingAudio
-                                ?
-                                <MicIcon style={{ marginRight: '10px' }}/>
-                                :
-                                <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
-                            }
-                            {
-                                playingVideo
-                                ?
-                                <VideocamIcon/>
-                                :
-                                <VideocamOffIcon style={{ color: '#F44336' }}/>
-                            }
+                        :
+                        null
+                    }
+                    {
+                        openedRoom && openedRoomParticipants && openedRoomParticipants[user._id] && user._id!==openedRoom.creator
+                        ?
+                        <Box sx={style.participant} key={user._id}>
+                            <Box sx={style.participantLeft}>
+                                <Avatar 
+                                    alt={openedRoomParticipants[user._id].name} 
+                                    src={openedRoomParticipants[user._id].avatar || '/images/monkey-avatar.png'} 
+                                    sx={style.avatar}
+                                    style={{ border: `2px solid ${colors[Math.floor(Math.random() * 6)]}` }}
+                                />
+                                <Typography variant='body1' sx={style.name}>
+                                    {openedRoomParticipants[user._id].name}
+                                </Typography>
+                                <Typography variant='body2' sx={style.role}>
+                                    (me)
+                                </Typography>
+                            </Box>
+                            <Box>
+                                {
+                                    playingAudio
+                                    ?
+                                    <MicIcon style={{ marginRight: '10px' }}/>
+                                    :
+                                    <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
+                                }
+                                {
+                                    playingVideo
+                                    ?
+                                    <VideocamIcon/>
+                                    :
+                                    <VideocamOffIcon style={{ color: '#F44336' }}/>
+                                }
+                            </Box>
                         </Box>
-                    </Box>
+                        :
+                        null
+                    }
+                    {
+                        remoteUsersStreams.length
+                        ?
+                        remoteUsersStreams.map(( { peerId } )=>{
+                            return(
+                                openedRoom && openedRoomParticipants && openedRoomParticipants[peerId] && (peerId!==openedRoom.creator && peerId!==user._id)
+                                ?
+                                <Box sx={style.participant} key={peerId}>
+                                    <Box sx={style.participantLeft}>
+                                        <Avatar 
+                                            alt={openedRoomParticipants[peerId].name} 
+                                            src={openedRoomParticipants[peerId].avatar || '/images/monkey-avatar.png'} 
+                                            sx={style.avatar}
+                                            style={{ border: `2px solid ${colors[Math.floor(Math.random() * 6)]}` }}
+                                        />
+                                        <Typography variant='body1' sx={style.name}>
+                                            {openedRoomParticipants[peerId].name}
+                                        </Typography>
+                                        <Typography variant='body2' sx={style.role}>
+                                            {
+                                                peerId===user._id
+                                                ?
+                                                '(me)'
+                                                :
+                                                ''
+                                            }
+                                        </Typography>
+                                    </Box>
+                                    <Box>
+                                        {
+                                            playingAudio
+                                            ?
+                                            <MicIcon style={{ marginRight: '10px' }}/>
+                                            :
+                                            <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
+                                        }
+                                        {
+                                            playingVideo
+                                            ?
+                                            <VideocamIcon/>
+                                            :
+                                            <VideocamOffIcon style={{ color: '#F44336' }}/>
+                                        }
+                                    </Box>
+                                </Box>
+                                :
+                                null
+                            )
+                        })
+                        
+                        :
+                        null
+                    }
                 </Box>
             </Box>
         </Dialog>

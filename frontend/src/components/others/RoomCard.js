@@ -44,7 +44,7 @@ const RoomCard = ( { room } ) => {
 
             <Stack direction='row' alignItems='center' spacing={3} mt={2}>
 
-                <Avatar alt={room.creator.name} src={room.creator.avatar} sx={{ border: `2px solid ${colors[randomNo]}` }} />
+                <Avatar alt={room.creator.name} src={room.creator.avatar || '/images/monkey-avatar.png'} sx={{ border: `2px solid ${colors[randomNo]}` }} />
 
                 <Stack direction='row' alignItems='center' spacing={1}>
                     <Typography color='text.secondary'>

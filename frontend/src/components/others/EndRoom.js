@@ -3,6 +3,7 @@ import TransitionComponent from "../shared/TransitionComponent";
 
 
 
+
 const style = {
     endMeetingDialog: {
         position: 'fixed',
@@ -62,7 +63,8 @@ const style = {
         }
     }
 }
-const EndRoom = ( { openEndMeetingDialog, setOpenEndMeetingDialog } ) => {
+const EndRoom = ( { openEndMeetingDialog, setOpenEndMeetingDialog, leaveRoom, endRoomForAll, user, openedRoom } ) => {
+    
     return (
         <Dialog
             open={openEndMeetingDialog}
@@ -91,11 +93,14 @@ const EndRoom = ( { openEndMeetingDialog, setOpenEndMeetingDialog } ) => {
                 </Button>
             </Box>
             <DialogActions sx={style.endMeetingDialogLeaveBtns}>
-                <Button sx={style.endMeetingDialogLeaveAllBtn} variant='contained'>
-                    End Meeting for All
-                </Button>
-                <Button sx={style.endMeetingDialogLeaveSingleBtn} variant='contained'>
-                    Leave Meeting
+                {
+                    (openedRoom && openedRoom.creator===user._id) && 
+                    <Button sx={style.endMeetingDialogLeaveAllBtn} variant='contained' onClick={()=> endRoomForAll()}>
+                        End Room for All
+                    </Button>
+                }
+                <Button sx={style.endMeetingDialogLeaveSingleBtn} variant='contained' onClick={leaveRoom}>
+                    Leave Room
                 </Button>
             </DialogActions>
         </Dialog>

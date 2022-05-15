@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Grid, IconButton, Button } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setOpenedRoom, setRemoteUsersStreams, setOpenedRoomParticipants, setRoomEndedForAll } from "../../redux/roomsSlice";
 import EndRoom from "./EndRoom";
 import RoomDetails from "./RoomDetails";
 
@@ -34,17 +35,70 @@ const style = {
         }
     }
 }
-const RoomHeader = ( { roomId }) => {
-
-    const { socket } = useSelector((state)=> state.rooms);
+const RoomHeader = ( { roomId, peer }) => {
+    
+    const { rooms: { socket, openedRoom, roomEndedForAll }, auth: { user } } = useSelector((state)=> state);
     const [openMeetingDetailsDialog, setOpenMeetingDetailsDialog] = useState(false);
     const [openEndMeetingDialog, setOpenEndMeetingDialog] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
+
+
+
+    useEffect(()=>{
+
+        if(roomEndedForAll){
+
+            dispatch(setRoomEndedForAll(false));
+           
+            if(peer){
+                peer.destroy();
+            }
+            socket.emit('leave room', roomId, user._id);
+    
+            dispatch(setOpenedRoom(null));
+            dispatch(setOpenedRoomParticipants(null));
+            dispatch(setRemoteUsersStreams([]));
+            navigate('/');
+
+        }
+
+    }, [dispatch, roomEndedForAll, navigate, peer, roomId, socket, user._id])
+    
+
+
+    
+
+
+    function leaveRoom(){
+        if(peer){
+            peer.destroy();
+        }
+        socket.emit('leave room', roomId, user._id);
+
+        dispatch(setOpenedRoom(null));
+        dispatch(setOpenedRoomParticipants(null));
+        dispatch(setRemoteUsersStreams([]));
+        navigate('/');
+    }
+
+
+    const endRoomForAll = ()=>{
+        socket.emit('end room', roomId, user._id);
+        leaveRoom();
+    }
 
     const handleBackBtnClick = ()=>{
-        socket.emit('leave room', roomId);
-        navigate('/');
+        if(openedRoom && peer){
+            if(openedRoom.creator===user._id){
+                endRoomForAll();
+            }else{
+                leaveRoom();
+            }
+        }else{
+            navigate('/');
+        }
     }
 
     return (
@@ -62,7 +116,7 @@ const RoomHeader = ( { roomId }) => {
                 </Button>
             </Grid>
 
-            <RoomDetails openMeetingDetailsDialog={openMeetingDetailsDialog} setOpenMeetingDetailsDialog={setOpenMeetingDetailsDialog}/>
+            <RoomDetails openMeetingDetailsDialog={openMeetingDetailsDialog} setOpenMeetingDetailsDialog={setOpenMeetingDetailsDialog} roomId={roomId}/>
 
             <Grid item>
                 <Button sx={style.endBtn} onClick={()=> setOpenEndMeetingDialog(true)}>
@@ -70,7 +124,7 @@ const RoomHeader = ( { roomId }) => {
                 </Button>
             </Grid>
             
-            <EndRoom openEndMeetingDialog={openEndMeetingDialog} setOpenEndMeetingDialog={setOpenEndMeetingDialog}/>
+            <EndRoom openEndMeetingDialog={openEndMeetingDialog} setOpenEndMeetingDialog={setOpenEndMeetingDialog} leaveRoom={leaveRoom} endRoomForAll={endRoomForAll} user={user} openedRoom={openedRoom}/>
 
         </Grid>
     )
