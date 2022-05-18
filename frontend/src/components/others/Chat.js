@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Dialog, Typography, Button, Slide, IconButton } from "@mui/material";
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
+import { useSelector } from 'react-redux';
 import ChatNotificationModal from './ChatNotificationModal';
 import Message from './Message';
 import ChatFooter from './ChatFooter';
@@ -63,9 +64,10 @@ const TransitionComponent = React.forwardRef(function TransitionComponent(props,
 
 const Chat = ( { openChatDialog, setOpenChatDialog } ) => {
 
+    const { rooms: { messages }, auth: { user } } = useSelector((state)=>state);
     const [openChatNotificationModal, setOpenChatNotificationModal] = useState(false);
     const [isMsgNotificationMuted, setIsMsgNotificationMuted] = useState(false);
-    const [messages, setMessages] = useState([{id:1, author:'usman'},{id:2, author:'faheem'},{id:3, author:'me'},{id:4, author:'me'},{id:5, author:'qasim'},{id:6, author:'qasim'}]);
+    // const [messages, setMessages] = useState([{id:1, author:'usman'},{id:2, author:'faheem'},{id:3, author:'me'},{id:4, author:'me'},{id:5, author:'qasim'},{id:6, author:'qasim'}]);
 
 
     return (
@@ -113,9 +115,15 @@ const Chat = ( { openChatDialog, setOpenChatDialog } ) => {
 
                 <Box sx={style.messagesContainer}>
                     {
-                        messages.map((message, index)=>{
-                            return <Message key={message.id} message={message} prevMessage={messages[index-1]} messageNo={index+1} />
+                        messages.length
+                        ?
+                        [
+                            ...new Map(messages.map((item)=>[item["_id"], item])).values()
+                        ].map((message, index)=>{
+                            return <Message key={message._id} message={message} prevMessage={messages[index-1]} messageNo={index+1} user={user} />
                         })
+                        :
+                        null
                     }
                 </Box>
                 

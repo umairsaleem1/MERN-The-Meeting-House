@@ -40,7 +40,7 @@ const style = {
         padding: '70px 0px'
     },
     media: {
-        width: '90%',
+        width: 'auto',
         height: 'auto',
         maxWidth: '100%',
         maxHeight: '100%'
@@ -70,8 +70,10 @@ const style = {
         marginBottom: '30px'
     },
     guestMedia: {
-        height: '100%',
-        width: '100%'
+        height: 'auto',
+        width: 'auto',
+        maxHeight: '100%',
+        maxWidth: '100%'
     },
     guestName: {
         position: 'absolute',
@@ -228,11 +230,18 @@ const SingleRoom = () => {
                     >
                         <SwiperSlide>
                             <Box sx={style.myVideoContainer}>
-                                {/* <img alt='avatar' src='/images/monkey-avatar.png' sx={style.media}/> */}
-                                <video style={style.media} muted ref={myVideoRef}></video>
+
+                                {
+                                    (openedRoomParticipants && openedRoomParticipants[user._id].isVideoOff)
+                                    &&
+                                    <img alt='avatar' src={openedRoomParticipants[user._id].avatar || '/images/monkey-avatar.png'} style={style.media}/>
+                                }
+                                <video height='100%' width='100%' muted ref={myVideoRef} style={openedRoomParticipants && openedRoomParticipants[user._id].isVideoOff ? { display: 'none' } : null}></video>
+                                
                                 <Typography variant='h6' sx={style.name}>
                                     { user.name ? user.name : '' }
                                 </Typography>
+
                             </Box>
                         </SwiperSlide> 
                         <SwiperSlide>
@@ -245,8 +254,17 @@ const SingleRoom = () => {
                                     ].map(( { peerId, stream } )=>{  
 
                                         return <Grid item sx={style.guest} key={stream.id}>
-                                            <GuestVideo stream={stream} style={style}/>
-                                            {/* <img alt='avatar' src='/images/monkey-avatar.png' sx={style.guestAvatar}/> */}
+                                            {
+                                                openedRoomParticipants
+                                                ?
+                                                    openedRoomParticipants[peerId].isVideoOff
+                                                    ?
+                                                    <img alt='avatar' src={openedRoomParticipants[peerId].avatar || '/images/monkey-avatar.png'} style={style.guestMedia}/>
+                                                    :
+                                                    <GuestVideo stream={stream} style={style}/>
+                                                    :
+                                                null
+                                            }
                                             <Typography variant='body1' sx={style.guestName}>
                                                 { 
                                                     openedRoomParticipants[peerId]
@@ -265,7 +283,7 @@ const SingleRoom = () => {
                         </SwiperSlide>
                     </Swiper>
                 </Box>
-                <RoomFooter myStream={myStream}/>
+                <RoomFooter roomId={roomId} userId={user._id} myStream={myStream} socket={socket}/>
 
             </Box>
             {

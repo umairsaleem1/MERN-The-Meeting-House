@@ -3,6 +3,9 @@ import { Box, IconButton, TextField, InputAdornment } from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import SentimentSatisfiedSharpIcon from '@mui/icons-material/SentimentSatisfiedSharp';
 import Picker from 'emoji-picker-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { appendMessage } from "../../redux/roomsSlice";
+import { useParams } from "react-router-dom";
 
 
 
@@ -41,8 +44,11 @@ const style = {
 }
 const ChatFooter = () => {
 
+    const { rooms: { socket }, auth: { user } } = useSelector((state)=>state)
     const [message, setMessage] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const { roomId } = useParams();
+    const dispatch = useDispatch();
 
 
 
@@ -51,6 +57,34 @@ const ChatFooter = () => {
         setMessage(message+emojiObject.emoji);
         setShowEmojiPicker(false);
     };
+
+    const handleMessageKeyUp = (e)=>{
+        if(e.keyCode===13){
+            sendMessage();
+        }
+    }
+
+    function sendMessage(){
+        if(!message.length){
+            alert('Message should not be empty!');
+            return;
+        }
+        
+        const newMessage = {
+            _id: new Date(Date.now()),
+            text: message,
+            authorId: user._id,
+            authorName: user.name,
+            authorAvatar: user.avatar
+        };
+
+        dispatch(appendMessage(newMessage));
+        setMessage('');
+
+        socket.emit('new message', roomId, newMessage);
+    }
+
+
     return (
         <Box sx={style.chatFooter}>
             <TextField 
@@ -71,8 +105,10 @@ const ChatFooter = () => {
                 sx={style.input}
                 value={message}
                 onChange={(e)=> setMessage(e.target.value)}
+                onKeyUp={handleMessageKeyUp}
+                required
             ></TextField>
-            <IconButton sx={style.sendBtn}>
+            <IconButton sx={style.sendBtn} onClick={sendMessage}>
                 <SendIcon/>
             </IconButton>
 

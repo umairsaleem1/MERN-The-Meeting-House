@@ -37,29 +37,29 @@ const style = {
         borderRadius: '10px'
     }
 }
-const Message = ( { message, prevMessage, messageNo } ) => {
+const Message = ( { message, prevMessage, messageNo, user } ) => {
 
     return (
-        <Box sx={style.container} style={ message.author==='me' ? { alignItems: 'flex-end' } : null }>
+        <Box sx={style.container} style={ message.authorId===user._id ? { alignItems: 'flex-end' } : null }>
             {
-                (messageNo===1 || (message.author!==prevMessage.author))
+                (messageNo===1 || (message.authorId!==prevMessage.authorId))
                 ?  
-                <Typography variant='body2' sx={style.name} style={ message.author==='me' ? { paddingRight: '60px' } : { paddingLeft: '60px' }}>
-                    {message.author} to Everyone
+                <Typography variant='body2' sx={style.name} style={ message.authorId===user._id ? { paddingRight: '60px' } : { paddingLeft: '60px' }}>
+                    { message.authorName } to Everyone
                 </Typography>
                 :
                 null
             }
             <Box sx={style.messageContainer}>
                 {
-                    (messageNo===1 || (message.author!==prevMessage.author))
+                    (messageNo===1 || (message.authorId!==prevMessage.authorId))
                     ? 
-                    <Avatar alt='avatar' src='/images/monkey-avatar.png' sx={style.avatar} style={ message.author==='me' ? { order: 12, marginRight: '0px', marginLeft: '10px' } : null }/>
+                    <Avatar alt='avatar' src={message.authorAvatar || '/images/monkey-avatar.png'} sx={style.avatar} style={ message.authorId===user._id ? { order: 12, marginRight: '0px', marginLeft: '10px' } : null }/>
                     :
-                    <Box sx={style.avatar} style={ message.author==='me' ? { order: 12, marginRight: '0px', marginLeft: '10px' } : null }></Box>
+                    <Box sx={style.avatar} style={ message.authorId===user._id ? { order: 12, marginRight: '0px', marginLeft: '10px' } : null }></Box>
                 }
-                <Typography variant='body1' sx={style.messageText} style={ message.author==='me' ? { backgroundColor: '#5453E0' } : null }>
-                    Hello, how are you?
+                <Typography variant='body1' sx={style.messageText} style={ message.authorId===user._id ? { backgroundColor: '#5453E0' } : null }>
+                    { message.text }
                 </Typography>
             </Box>
         </Box>

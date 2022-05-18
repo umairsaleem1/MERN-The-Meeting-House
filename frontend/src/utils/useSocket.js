@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setSocket, setSocketEventsRegistered, setOnlineUsers, removeStreamFromRemoteUsersStreams, setOpenedRoomParticipants, setRoomEndedForAll } from "../redux/roomsSlice";
+import { setSocket, setSocketEventsRegistered, setOnlineUsers, removeStreamFromRemoteUsersStreams, setOpenedRoomParticipants, setRoomEndedForAll, appendMessage } from "../redux/roomsSlice";
 import io from 'socket.io-client';
 import { baseURL } from "../config/baseURL";
 
@@ -48,6 +48,11 @@ export const useSocket = () => {
                 socket.on('room ended', ()=>{
                     dispatch(setRoomEndedForAll(true));
                 });
+
+
+                socket.on('new message', (newMessage)=>{
+                    dispatch(appendMessage(newMessage));
+                })
 
         
 

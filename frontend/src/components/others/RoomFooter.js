@@ -8,6 +8,8 @@ import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import { Grid, IconButton, Typography } from '@mui/material';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleMyMic, toggleMyVideo } from '../../redux/roomsSlice';
 import Share from './Share';
 import Participants from './Participants';
 import Chat from './Chat';
@@ -38,76 +40,90 @@ const style = {
         fontSize: '35px'
     }
 }
-const RoomFooter = ( { myStream } ) => {
+const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
 
-    const [playingAudio, setPlayingAudio] = useState(true);
-    const [playingVideo, setPlayingVideo] = useState(true);
+    const { openedRoomParticipants } = useSelector((state)=>state.rooms);
     const [openShareDialog, setOpenShareDialog] = useState(false);
     const [openParticipantsDialog, setOpenParticipantsDialog] = useState(false);
     const [openChatDialog, setOpenChatDialog] = useState(false);
+    const dispatch = useDispatch();
+
 
 
 
     const muteAudio = ()=>{
         if(myStream && myStream.getAudioTracks().length>0){
             myStream.getAudioTracks()[0].enabled = false;
-            setPlayingAudio(false);
+            dispatch(toggleMyMic({ userId: userId, value: true }));
 
-            // here emit a socket event to notify all other sockets in the room that this users' mic has been muted
+            socket.emit('toggleMic', roomId, userId, true);
         }
     }
 
     const unMuteAudio = ()=>{
         if(myStream && myStream.getAudioTracks().length>0){
             myStream.getAudioTracks()[0].enabled = true;
-            setPlayingAudio(true);
+            dispatch(toggleMyMic({ userId: userId, value: false }));
 
-            // here emit a socket event to notify all other sockets in the room that this users' mic has been unmuted
+            socket.emit('toggleMic', roomId, userId, false);
         }
     }
+
+    const stopVideo = ()=>{
+        if(myStream && myStream.getVideoTracks().length>0){
+            myStream.getVideoTracks()[0].enabled = false;
+            dispatch(toggleMyVideo({ userId: userId, value: true }));
+
+            socket.emit('toggleVideo', roomId, userId, true);
+        }
+    }
+
+    const startVideo = ()=>{
+        if(myStream && myStream.getVideoTracks().length>0){
+            myStream.getVideoTracks()[0].enabled = true;
+            dispatch(toggleMyVideo({ userId: userId, value: false }));
+
+            socket.emit('toggleVideo', roomId, userId, false);
+        }
+    }
+
+
+
+
 
     return (
         <Grid container justifyContent='space-evenly' alignItems='center' sx={style.roomFooter}>
             
             <Grid item>
                 {
-                    playingAudio
+                    openedRoomParticipants && openedRoomParticipants[userId].isMicMuted
                     ?
-                    <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={muteAudio}>
-                        <MicIcon sx={style.iconBtnIcon}/>
-                        <Typography color='text.primary'>Mute</Typography>
-                    </IconButton>
-                    :
                     <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={unMuteAudio}>
                         <MicOffIcon sx={style.iconBtnIcon}/>
                         <Typography color='text.primary'>Unmute</Typography>
+                    </IconButton>
+                    :
+                    <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={muteAudio}>
+                        <MicIcon sx={style.iconBtnIcon}/>
+                        <Typography color='text.primary'>Mute</Typography>
                     </IconButton>
                 }
             </Grid>
 
             <Grid item>
-                <IconButton sx={style.iconBtn} onClick={()=> setPlayingVideo(!playingVideo)}>
-                    {
-                        playingVideo
-                        ?
+                {
+                    openedRoomParticipants && openedRoomParticipants[userId].isVideoOff
+                    ?
+                    <IconButton sx={style.iconBtn} onClick={startVideo}>   
+                        <VideocamOffIcon sx={style.iconBtnIcon}/>   
+                        <Typography color='text.primary'>Start video</Typography>
+                    </IconButton>
+                    :
+                    <IconButton sx={style.iconBtn} onClick={stopVideo}>    
                         <VideocamIcon sx={style.iconBtnIcon}/>
-                        :
-                        <VideocamOffIcon sx={style.iconBtnIcon}/>
-                    }
-                    <Typography color='text.primary'>
-                        {
-                            playingVideo
-                            ?
-                            <>
-                            Stop video
-                            </>
-                            :
-                            <>
-                            Start video
-                            </>
-                        }
-                    </Typography>
-                </IconButton>
+                        <Typography color='text.primary'>Stop video</Typography>
+                    </IconButton>
+                }
             </Grid>
 
             <Grid item>
@@ -131,7 +147,7 @@ const RoomFooter = ( { myStream } ) => {
                 </IconButton>
             </Grid>
 
-            <Participants openParticipantsDialog={openParticipantsDialog} setOpenParticipantsDialog={setOpenParticipantsDialog}/>
+            <Participants openParticipantsDialog={openParticipantsDialog} setOpenParticipantsDialog={setOpenParticipantsDialog} roomId={roomId}/>
 
             <Grid item>
                 <IconButton sx={style.iconBtn} onClick={()=> setOpenChatDialog(true)}>

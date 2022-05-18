@@ -4,7 +4,8 @@ import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setIsAllParticipantsMuted } from '../../redux/roomsSlice';
 
 
 
@@ -85,13 +86,28 @@ const style = {
 const TransitionComponent = React.forwardRef(function TransitionComponent(props, ref) {
     return <Slide direction="left" ref={ref} {...props} />;
 });
-const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog } ) => {
+const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog, roomId } ) => {
 
-    const { rooms: { openedRoom, openedRoomParticipants, remoteUsersStreams }, auth: { user } } = useSelector((state)=>state);
+    const { rooms: { socket, openedRoom, openedRoomParticipants, remoteUsersStreams, isAllParticipantsMuted }, auth: { user } } = useSelector((state)=>state);
+    const dispatch = useDispatch();
     
-    const playingAudio = true;
-    const playingVideo = true;
     const colors = ['#0077FF', '#20BD5F', '#F44336', '#E91E63', '#5453E0', 'yellow'];
+
+
+
+
+    
+    
+    const muteAll = ()=>{
+        dispatch(setIsAllParticipantsMuted(true));
+        socket.emit('toggleGuestsMic', roomId, true);
+    }
+
+    const unMuteAll = ()=>{
+        dispatch(setIsAllParticipantsMuted(false));
+        socket.emit('toggleGuestsMic', roomId, false);
+    }
+
 
     return (
         <Dialog
@@ -129,9 +145,27 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog } ) =
                             ''
                         }
                     </Typography>
-                    <Button  variant='contained' sx={style.muteAllBtn}>
-                        Mute All
-                    </Button>
+                    {
+                        (openedRoom && user) && <Box>
+                            {
+                                openedRoom.creator===user._id
+                                ?
+                                    isAllParticipantsMuted
+                                    ?
+                                    <Button  variant='contained' sx={style.muteAllBtn} onClick={unMuteAll}>
+                                        Unmute All
+                                    </Button>
+                                    :
+                                    <Button  variant='contained' sx={style.muteAllBtn} onClick={muteAll}>
+                                        Mute All
+                                    </Button>
+                                :
+                                <Button  variant='contained' sx={style.muteAllBtn} style={{ opacity: 0, cursor: 'default' }}>
+                                    Mute All
+                                </Button>
+                            }
+                        </Box>
+                    }
                 </Box>
                 <Box sx={style.participantsList}>
                     {
@@ -160,18 +194,18 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog } ) =
                             </Box>
                             <Box>
                                 {
-                                    playingAudio
+                                    openedRoomParticipants[openedRoom.creator].isMicMuted
                                     ?
-                                    <MicIcon style={{ marginRight: '10px' }}/>
-                                    :
                                     <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
+                                    :
+                                    <MicIcon style={{ marginRight: '10px' }}/>
                                 }
                                 {
-                                    playingVideo
+                                    openedRoomParticipants[openedRoom.creator].isVideoOff
                                     ?
-                                    <VideocamIcon/>
-                                    :
                                     <VideocamOffIcon style={{ color: '#F44336' }}/>
+                                    :
+                                    <VideocamIcon/>
                                 }
                             </Box>
                         </Box>
@@ -198,18 +232,18 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog } ) =
                             </Box>
                             <Box>
                                 {
-                                    playingAudio
+                                    openedRoomParticipants[user._id].isMicMuted
                                     ?
-                                    <MicIcon style={{ marginRight: '10px' }}/>
-                                    :
                                     <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
+                                    :
+                                    <MicIcon style={{ marginRight: '10px' }}/>
                                 }
                                 {
-                                    playingVideo
+                                    openedRoomParticipants[user._id].isVideoOff
                                     ?
-                                    <VideocamIcon/>
-                                    :
                                     <VideocamOffIcon style={{ color: '#F44336' }}/>
+                                    :
+                                    <VideocamIcon/>
                                 }
                             </Box>
                         </Box>
@@ -246,18 +280,18 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog } ) =
                                     </Box>
                                     <Box>
                                         {
-                                            playingAudio
+                                            openedRoomParticipants[peerId].isMicMuted
                                             ?
-                                            <MicIcon style={{ marginRight: '10px' }}/>
-                                            :
                                             <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
+                                            :
+                                            <MicIcon style={{ marginRight: '10px' }}/>
                                         }
                                         {
-                                            playingVideo
+                                            openedRoomParticipants[peerId].isVideoOff
                                             ?
-                                            <VideocamIcon/>
-                                            :
                                             <VideocamOffIcon style={{ color: '#F44336' }}/>
+                                            :
+                                            <VideocamIcon/>
                                         }
                                     </Box>
                                 </Box>

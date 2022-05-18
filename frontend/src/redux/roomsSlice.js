@@ -12,7 +12,9 @@ const roomsSlice = createSlice({
         openedRoom: null,
         openedRoomParticipants: null,
         remoteUsersStreams: [],
-        roomEndedForAll: false
+        roomEndedForAll: false,
+        messages: [],
+        isAllParticipantsMuted: false
     },
     reducers: {
         setRooms(state, action){
@@ -49,13 +51,32 @@ const roomsSlice = createSlice({
         },
         setRoomEndedForAll(state, action){
             state.roomEndedForAll = action.payload;
+        },
+        toggleMyMic(state, action){
+            const roomParticipants = state.openedRoomParticipants;
+            roomParticipants[action.payload.userId] = { ...roomParticipants[action.payload.userId], isMicMuted: action.payload.value };
+            state.openedRoomParticipants = roomParticipants;
+        },
+        toggleMyVideo(state, action){
+            const roomParticipants = state.openedRoomParticipants;
+            roomParticipants[action.payload.userId] = { ...roomParticipants[action.payload.userId], isVideoOff: action.payload.value };
+            state.openedRoomParticipants = roomParticipants;
+        },
+        setIsAllParticipantsMuted(state, action){
+            state.isAllParticipantsMuted = action.payload;
+        },
+        appendMessage(state, action){
+            state.messages.push(action.payload);
+        },
+        resetMessages(state, action){
+            state.messages = action.payload;
         }
     }
 });
 
 
 
-export const { setRooms, setSocket, setSocketEventsRegistered, setOnlineUsers, setOpenedRoom, setOpenedRoomParticipants, setRemoteUsersStreams, appendStreamToRemoteUsersStreams, removeStreamFromRemoteUsersStreams, setRoomEndedForAll } = roomsSlice.actions;
+export const { setRooms, setSocket, setSocketEventsRegistered, setOnlineUsers, setOpenedRoom, setOpenedRoomParticipants, setRemoteUsersStreams, appendStreamToRemoteUsersStreams, removeStreamFromRemoteUsersStreams, setRoomEndedForAll, toggleMyMic, toggleMyVideo, setIsAllParticipantsMuted, appendMessage, resetMessages } = roomsSlice.actions;
 export default roomsSlice.reducer;
 
 

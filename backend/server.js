@@ -82,7 +82,8 @@ io.on('connection', (socket)=>{
             socketId : socket.id, 
             name: userName,
             avatar: userAvatar,  
-            messages: []
+            isMicMuted: false,
+            isVideoOff: false
         }
     
 
@@ -129,8 +130,36 @@ io.on('connection', (socket)=>{
     })
 
 
-    socket.on('disconnect', ()=>{
+
+    socket.on('toggleMic', (roomId, userId, value)=>{
+
+        const roomParticipants = roomsParticipants[roomId];
+        roomParticipants[userId] = { ...roomParticipants[userId], isMicMuted: Boolean(value) };
+
+        socket.to(roomId).emit('updatedRoomParticipants', roomParticipants);  
+
+    })
+
+
+
+    socket.on('toggleVideo', (roomId, userId, value)=>{
+
+        const roomParticipants = roomsParticipants[roomId];
+        roomParticipants[userId] = { ...roomParticipants[userId], isVideoOff: Boolean(value) };
+
+        socket.to(roomId).emit('updatedRoomParticipants', roomParticipants);
+
+    })
+
+
+
+    socket.on('new message', (roomId, newMessage)=>{
+        socket.to(roomId).emit('new message', newMessage);
+    });
+
+
+    socket.on('disconnect', ()=>{ 
         delete onlineUsers[socket.id];
-        io.emit('onlineUsers', Object.values(onlineUsers));
+        io.emit('onlineUsers', Object.values(onlineUsers));     
     });
 })

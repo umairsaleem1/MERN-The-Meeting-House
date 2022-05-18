@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useSelector, useDispatch } from 'react-redux';
-import { setOpenedRoom, setRemoteUsersStreams, setOpenedRoomParticipants, setRoomEndedForAll } from "../../redux/roomsSlice";
+import { setOpenedRoom, setRemoteUsersStreams, setOpenedRoomParticipants, setRoomEndedForAll, resetMessages } from "../../redux/roomsSlice";
 import EndRoom from "./EndRoom";
 import RoomDetails from "./RoomDetails";
 
@@ -60,6 +60,7 @@ const RoomHeader = ( { roomId, peer }) => {
             dispatch(setOpenedRoom(null));
             dispatch(setOpenedRoomParticipants(null));
             dispatch(setRemoteUsersStreams([]));
+            dispatch(resetMessages([]));
             navigate('/');
 
         }
@@ -80,6 +81,7 @@ const RoomHeader = ( { roomId, peer }) => {
         dispatch(setOpenedRoom(null));
         dispatch(setOpenedRoomParticipants(null));
         dispatch(setRemoteUsersStreams([]));
+        dispatch(resetMessages([]));
         navigate('/');
     }
 
