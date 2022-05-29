@@ -5,7 +5,7 @@ import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import { useSelector, useDispatch } from 'react-redux';
-import { setIsAllParticipantsMuted } from '../../redux/roomsSlice';
+import { setIsAllParticipantsMicMuted } from '../../redux/roomsSlice';
 
 
 
@@ -88,7 +88,7 @@ const TransitionComponent = React.forwardRef(function TransitionComponent(props,
 });
 const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog, roomId } ) => {
 
-    const { rooms: { socket, openedRoom, openedRoomParticipants, remoteUsersStreams, isAllParticipantsMuted }, auth: { user } } = useSelector((state)=>state);
+    const { rooms: { socket, openedRoom, openedRoomParticipants, remoteUsersStreams, isAllParticipantsMicMuted }, auth: { user } } = useSelector((state)=>state);
     const dispatch = useDispatch();
     
     const colors = ['#0077FF', '#20BD5F', '#F44336', '#E91E63', '#5453E0', 'yellow'];
@@ -99,12 +99,12 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog, room
     
     
     const muteAll = ()=>{
-        dispatch(setIsAllParticipantsMuted(true));
+        dispatch(setIsAllParticipantsMicMuted(true));
         socket.emit('toggleGuestsMic', roomId, true);
     }
 
     const unMuteAll = ()=>{
-        dispatch(setIsAllParticipantsMuted(false));
+        dispatch(setIsAllParticipantsMicMuted(false));
         socket.emit('toggleGuestsMic', roomId, false);
     }
 
@@ -150,7 +150,7 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog, room
                             {
                                 openedRoom.creator===user._id
                                 ?
-                                    isAllParticipantsMuted
+                                    isAllParticipantsMicMuted
                                     ?
                                     <Button  variant='contained' sx={style.muteAllBtn} onClick={unMuteAll}>
                                         Unmute All
@@ -232,7 +232,7 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog, room
                             </Box>
                             <Box>
                                 {
-                                    openedRoomParticipants[user._id].isMicMuted
+                                    openedRoomParticipants[user._id].isMicMuted || openedRoomParticipants[user._id].isMyMicMutedByRoomCreator
                                     ?
                                     <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
                                     :
@@ -280,7 +280,7 @@ const Participants = ( { openParticipantsDialog, setOpenParticipantsDialog, room
                                     </Box>
                                     <Box>
                                         {
-                                            openedRoomParticipants[peerId].isMicMuted
+                                            openedRoomParticipants[peerId].isMicMuted || openedRoomParticipants[peerId].isMyMicMutedByRoomCreator
                                             ?
                                             <MicOffIcon style={{ marginRight: '10px', color: '#F44336' }}/>
                                             :

@@ -42,30 +42,35 @@ const style = {
 }
 const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
 
-    const { openedRoomParticipants } = useSelector((state)=>state.rooms);
+    const { openedRoom, openedRoomParticipants, isAllParticipantsMicMuted } = useSelector((state)=>state.rooms);
     const [openShareDialog, setOpenShareDialog] = useState(false);
     const [openParticipantsDialog, setOpenParticipantsDialog] = useState(false);
     const [openChatDialog, setOpenChatDialog] = useState(false);
+    const [isSharingScreen, setIsSharingScreen] = useState(false);
     const dispatch = useDispatch();
 
 
 
 
     const muteAudio = ()=>{
-        if(myStream && myStream.getAudioTracks().length>0){
-            myStream.getAudioTracks()[0].enabled = false;
-            dispatch(toggleMyMic({ userId: userId, value: true }));
+        if(!isAllParticipantsMicMuted || openedRoom.creator===userId){
+            if(myStream && myStream.getAudioTracks().length>0){
+                myStream.getAudioTracks()[0].enabled = false;
+                dispatch(toggleMyMic({ userId: userId, value: true }));
 
-            socket.emit('toggleMic', roomId, userId, true);
+                socket.emit('toggleMic', roomId, userId, true);
+            }
         }
     }
 
     const unMuteAudio = ()=>{
-        if(myStream && myStream.getAudioTracks().length>0){
-            myStream.getAudioTracks()[0].enabled = true;
-            dispatch(toggleMyMic({ userId: userId, value: false }));
+        if(!isAllParticipantsMicMuted || openedRoom.creator===userId){
+            if(myStream && myStream.getAudioTracks().length>0){
+                myStream.getAudioTracks()[0].enabled = true;
+                dispatch(toggleMyMic({ userId: userId, value: false }));
 
-            socket.emit('toggleMic', roomId, userId, false);
+                socket.emit('toggleMic', roomId, userId, false);
+            }
         }
     }
 
@@ -89,6 +94,16 @@ const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
 
 
 
+    const startScreenSharing = ()=>{
+    }
+
+
+
+    const stopScreenSharing = ()=>{
+
+    }
+
+
 
 
     return (
@@ -96,7 +111,7 @@ const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
             
             <Grid item>
                 {
-                    openedRoomParticipants && openedRoomParticipants[userId].isMicMuted
+                    openedRoomParticipants && (openedRoomParticipants[userId].isMicMuted || openedRoomParticipants[userId].isMyMicMutedByRoomCreator)
                     ?
                     <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={unMuteAudio}>
                         <MicOffIcon sx={style.iconBtnIcon}/>
@@ -136,7 +151,7 @@ const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
                 </IconButton>
             </Grid>
 
-            <Share openShareDialog={openShareDialog} setOpenShareDialog={setOpenShareDialog}/>
+            <Share openShareDialog={openShareDialog} setOpenShareDialog={setOpenShareDialog} startScreenSharing={startScreenSharing} stopScreenSharing={stopScreenSharing} isSharingScreen={isSharingScreen}/>
 
             <Grid item>
                 <IconButton sx={style.iconBtn} onClick={()=> setOpenParticipantsDialog(true)}>

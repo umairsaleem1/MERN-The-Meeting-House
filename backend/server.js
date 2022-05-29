@@ -83,7 +83,8 @@ io.on('connection', (socket)=>{
             name: userName,
             avatar: userAvatar,  
             isMicMuted: false,
-            isVideoOff: false
+            isVideoOff: false,
+            isMyMicMutedByRoomCreator: false   
         }
     
 
@@ -148,6 +149,22 @@ io.on('connection', (socket)=>{
         roomParticipants[userId] = { ...roomParticipants[userId], isVideoOff: Boolean(value) };
 
         socket.to(roomId).emit('updatedRoomParticipants', roomParticipants);
+
+    })
+
+
+
+    socket.on('toggleGuestsMic', (roomId, value)=>{
+        socket.to(roomId).emit('toggleGuestMic', roomId, value);
+    });
+
+
+    socket.on('micUpdate', (roomId, userId, value)=>{ 
+
+        const roomParticipants = roomsParticipants[roomId]; 
+        roomParticipants[userId] = { ...roomParticipants[userId], isMyMicMutedByRoomCreator: Boolean(value), isMicMuted: false };
+
+        socket.to(roomId).emit('updatedRoomParticipants', roomParticipants);  
 
     })
 

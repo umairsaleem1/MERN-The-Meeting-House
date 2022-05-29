@@ -13,8 +13,8 @@ const roomsSlice = createSlice({
         openedRoomParticipants: null,
         remoteUsersStreams: [],
         roomEndedForAll: false,
-        messages: [],
-        isAllParticipantsMuted: false
+        isAllParticipantsMicMuted: false,
+        messages: []
     },
     reducers: {
         setRooms(state, action){
@@ -62,8 +62,13 @@ const roomsSlice = createSlice({
             roomParticipants[action.payload.userId] = { ...roomParticipants[action.payload.userId], isVideoOff: action.payload.value };
             state.openedRoomParticipants = roomParticipants;
         },
-        setIsAllParticipantsMuted(state, action){
-            state.isAllParticipantsMuted = action.payload;
+        setIsAllParticipantsMicMuted(state, action){
+            state.isAllParticipantsMicMuted = action.payload;
+        },
+        setIsMyMicMutedByRoomCreator(state, action){
+            const roomParticipants = state.openedRoomParticipants;
+            roomParticipants[action.payload.userId] = { ...roomParticipants[action.payload.userId], isMyMicMutedByRoomCreator: action.payload.value, isMicMuted: false };
+            state.openedRoomParticipants = roomParticipants;
         },
         appendMessage(state, action){
             state.messages.push(action.payload);
@@ -76,7 +81,7 @@ const roomsSlice = createSlice({
 
 
 
-export const { setRooms, setSocket, setSocketEventsRegistered, setOnlineUsers, setOpenedRoom, setOpenedRoomParticipants, setRemoteUsersStreams, appendStreamToRemoteUsersStreams, removeStreamFromRemoteUsersStreams, setRoomEndedForAll, toggleMyMic, toggleMyVideo, setIsAllParticipantsMuted, appendMessage, resetMessages } = roomsSlice.actions;
+export const { setRooms, setSocket, setSocketEventsRegistered, setOnlineUsers, setOpenedRoom, setOpenedRoomParticipants, setRemoteUsersStreams, appendStreamToRemoteUsersStreams, removeStreamFromRemoteUsersStreams, setRoomEndedForAll, toggleMyMic, toggleMyVideo, setIsAllParticipantsMicMuted ,setIsMyMicMutedByRoomCreator, appendMessage, resetMessages } = roomsSlice.actions;
 export default roomsSlice.reducer;
 
 

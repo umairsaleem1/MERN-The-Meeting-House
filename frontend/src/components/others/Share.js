@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import PhotoSizeSelectActualOutlinedIcon from '@mui/icons-material/PhotoSizeSelectActualOutlined';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import ScreenShareOutlinedIcon from '@mui/icons-material/ScreenShareOutlined';
+import StopScreenShareOutlinedIcon from '@mui/icons-material/StopScreenShareOutlined';
 
 
 
@@ -66,7 +67,7 @@ const Input = styled('input')({
     display: 'none',
 });
 
-const Share = ( { openShareDialog, setOpenShareDialog } ) => {
+const Share = ( { openShareDialog, setOpenShareDialog, startScreenSharing, stopScreenSharing, isSharingScreen } ) => {
 
     return (
         <Dialog
@@ -106,10 +107,19 @@ const Share = ( { openShareDialog, setOpenShareDialog } ) => {
                             <InsertDriveFileOutlinedIcon sx={style.shareItemBtnIcon}/>
                         </Button>
                     </label>
-                    <Button sx={style.shareItemBtn}>
-                        Screen
-                        <ScreenShareOutlinedIcon sx={style.shareItemBtnIcon}/>
-                    </Button>
+                    {
+                        isSharingScreen
+                        ?
+                        <Button sx={style.shareItemBtn} onClick={stopScreenSharing}>
+                            Stop Screen
+                            <StopScreenShareOutlinedIcon sx={style.shareItemBtnIcon}/>
+                        </Button>
+                        :
+                        <Button sx={style.shareItemBtn} onClick={startScreenSharing}>
+                            Start Screen
+                            <ScreenShareOutlinedIcon sx={style.shareItemBtnIcon}/>
+                        </Button> 
+                        }
                 </Box>
                 <Button sx={style.cancelBtn} onClick={()=> setOpenShareDialog(false)}>Cancel</Button>
             </Box>

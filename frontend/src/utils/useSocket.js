@@ -50,6 +50,7 @@ export const useSocket = () => {
                 });
 
 
+
                 socket.on('new message', (newMessage)=>{
                     dispatch(appendMessage(newMessage));
                 })

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Grid, Box, Typography, Snackbar, Alert } from '@mui/material';
 import Peer from 'peerjs';
 import { useSelector, useDispatch } from 'react-redux';
-import { getSingleRoom, setOpenedRoomParticipants, appendStreamToRemoteUsersStreams } from '../redux/roomsSlice';
+import { getSingleRoom, setOpenedRoomParticipants, appendStreamToRemoteUsersStreams, setIsMyMicMutedByRoomCreator, setIsAllParticipantsMicMuted } from '../redux/roomsSlice';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from "swiper";
@@ -175,6 +175,16 @@ const SingleRoom = () => {
                         });
                         
                     })
+
+
+                    socket.on('toggleGuestMic', (roomId, value)=>{
+                        myStream.getAudioTracks()[0].enabled = Boolean(!value);
+                        dispatch(setIsMyMicMutedByRoomCreator({ userId: user._id, value: Boolean(value) }));
+                        dispatch(setIsAllParticipantsMicMuted(Boolean(value)));
+
+                        socket.emit('micUpdate', roomId, user._id, value);
+                    });
+
     
     
                     peer.on('call', (mediaConnection)=>{
@@ -195,6 +205,7 @@ const SingleRoom = () => {
                         console.log(err);
                         setAlert({ showAlert: true, severity: 'error', message: 'Connection failure!'});
                     })
+
 
                 })  
 
