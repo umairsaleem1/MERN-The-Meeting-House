@@ -33,6 +33,10 @@ export function getUser(navigate){
         if(!user){
             try{
                 const res = await fetch('/auth/authenticate');
+                if(res.status===404){
+                    navigate('/login');
+                    throw new Error(res.statusText);
+                }
                 if(res.status===401){
                     navigate('/login');
                     throw new Error(res.statusText);

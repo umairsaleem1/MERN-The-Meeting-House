@@ -13,14 +13,26 @@ import Navbar from '../components/shared/Navbar';
 
 const style = {
     container: {
-        minHeight: 'calc(100vh - 80px)',
-        height: 'auto',
+        minHeight: {
+            md: 'calc(100vh - 80px)',
+            xs: 'calc(100vh - 60px)',
+        },
         width: '100%',
         backgroundColor: 'background.primary',
-        display: 'flex',
+        display: {
+            sm: 'flex',
+            xs: 'block'
+        },
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop:'80px'
+        marginTop: {
+            md: '80px',
+            xs: '60px',
+        },
+        paddingTop: {
+            sm: '0px',
+            xs: '90px'
+        }
     }
 }
 const ResetPassword = () => {
@@ -51,7 +63,7 @@ const ResetPassword = () => {
                  
                 <StepsTitle icon='😃' title='Enter your new password'/>
                 
-                <TextInput type='password' placeholder='' setValue={setNewPassword}/>
+                <TextInput type='password' placeholder='' value={newPassword} setValue={setNewPassword}/>
 
                 <Typography variant='body2' mt='15px' color='text.secondary'>
                     New password will be used to get access to your account

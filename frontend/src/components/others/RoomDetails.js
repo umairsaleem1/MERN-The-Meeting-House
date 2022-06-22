@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Box, Grid, Button, Dialog, Typography } from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { useSelector } from "react-redux";
 import TransitionComponent from '../shared/TransitionComponent';
+
 
 
 
@@ -13,7 +15,7 @@ const style = {
         position: 'fixed',
         left: 'calc(50% - 175px)',
         top: '60px',
-        width: '350px'
+        width: '350px',
     },
     meetingDetails: {
         padding: '20px',
@@ -62,6 +64,7 @@ const style = {
 }
 const RoomDetails = ( { openMeetingDetailsDialog, setOpenMeetingDetailsDialog, roomId } ) => {
 
+    const { openedRoom, openedRoomParticipants} = useSelector((state)=>state.rooms);
     const [invitationLinkCopied, setInvitationLinkCopied] = useState(false);
 
 
@@ -81,6 +84,7 @@ const RoomDetails = ( { openMeetingDetailsDialog, setOpenMeetingDetailsDialog, r
             fullScreen={true}
             onClose={()=> setOpenMeetingDetailsDialog(false)}
             sx={style.meetingDetailsDialog}
+            style={ invitationLinkCopied ? { height: '333px' } : { height: '283px' } }
             BackdropProps={{
                 style: {
                     backgroundColor: 'transparent',
@@ -97,14 +101,20 @@ const RoomDetails = ( { openMeetingDetailsDialog, setOpenMeetingDetailsDialog, r
         >
             <Box sx={style.meetingDetails}>
                 <Typography variant='h6' sx={style.meetingTopic}>
-                    Which frontend framework is best?
+                    { openedRoom && openedRoom.topic}
                 </Typography>
                 <Grid container mt={2}>
                     <Typography variant='body2' sx={style.meetingDetailName}>
                         Host
                     </Typography>
                     <Typography variant='body2' sx={style.meetingDetailValue}>
-                        Umair Saleem
+                        {
+                            openedRoom && openedRoomParticipants
+                            ?
+                            openedRoomParticipants[openedRoom.creator] && openedRoomParticipants[openedRoom.creator].name
+                            :
+                            ''
+                        }
                     </Typography>
                 </Grid>
                 <Grid container flexWrap='wrap' mt={2}>

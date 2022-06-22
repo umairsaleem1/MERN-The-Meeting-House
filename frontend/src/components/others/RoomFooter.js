@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import MicIcon from '@mui/icons-material/Mic';
 import VideocamIcon from '@mui/icons-material/Videocam';
-// import ShareIcon from '@mui/icons-material/Share';
-import ScreenShareIcon from '@mui/icons-material/ScreenShare';
+import ShareIcon from '@mui/icons-material/Share';
 import GroupIcon from '@mui/icons-material/Group';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, IconButton, Typography, Badge } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { toggleMyMic, toggleMyVideo } from '../../redux/roomsSlice';
+import { toggleMyMic, toggleMyVideo, setErrorAlert, setIsChatScreenOpened } from '../../redux/roomsSlice';
 import Share from './Share';
 import Participants from './Participants';
 import Chat from './Chat';
@@ -19,12 +18,19 @@ import Chat from './Chat';
 const style = {
     roomFooter: {
         width: '100%',
-        height: '100px',
+        height: {
+            sm: '100px',
+            xs: '70px'
+        },
         backgroundColor: 'background.secondary',
         position: 'fixed',
         bottom: '0px',
         left: '0px',
-        padding: '0px 400px'
+        padding: {
+            lg: '0px 400px',
+            xm: '0px 200px',
+            md: '0px 100px'
+        }
     },
     iconBtn: {
         // padding: '10px',
@@ -37,12 +43,21 @@ const style = {
         }
     },
     iconBtnIcon: {
-        fontSize: '35px'
+        fontSize: {
+            sm: '35px',
+            xs: '25px'
+        }
+    },
+    iconBtnText: {
+        fontSize: {
+            sm: '16px',
+            xs: '14px'
+        }
     }
 }
-const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
+const RoomFooter = ( { roomId, userId, myStream, socket, peer, calls } ) => {
 
-    const { openedRoom, openedRoomParticipants, isAllParticipantsMicMuted } = useSelector((state)=>state.rooms);
+    const { openedRoom, openedRoomParticipants, isAllParticipantsMicMuted, isUnreadMessagesPresent } = useSelector((state)=>state.rooms);
     const [openShareDialog, setOpenShareDialog] = useState(false);
     const [openParticipantsDialog, setOpenParticipantsDialog] = useState(false);
     const [openChatDialog, setOpenChatDialog] = useState(false);
@@ -95,12 +110,50 @@ const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
 
 
     const startScreenSharing = ()=>{
+        if(isSharingScreen){
+            stopScreenSharing();
+        }
+        navigator.mediaDevices.getDisplayMedia({ audio: true, video: true })
+        .then((screenStream)=>{
+            const videoTrack = screenStream.getVideoTracks()[0];
+            videoTrack.onended = ()=>{
+                stopScreenSharing();
+            }
+            if(peer){
+                calls.forEach((call)=>{
+                    const sender = call.peerConnection.getSenders().find((s)=>{
+                        return s.track.kind === videoTrack.kind;
+                    })
+
+                    sender.replaceTrack(videoTrack);
+                })
+            }
+            setIsSharingScreen(true);
+            setOpenShareDialog(false);
+        })
+        .catch((e)=>{
+            console.log(e);
+            dispatch(setErrorAlert('Cannot get local microphone or camera'));
+        })
     }
 
 
 
-    const stopScreenSharing = ()=>{
+    function stopScreenSharing(){
+        const videoTrack = myStream.getVideoTracks()[0];
+        if (peer) {
+            calls.forEach((call)=>{
+                const sender = call.peerConnection.getSenders().find(function (s) {
+                    return s.track.kind === videoTrack.kind;
+                })
+                sender.replaceTrack(videoTrack)
+            })
+            
+            
+        }
 
+        setIsSharingScreen(false);
+        setOpenShareDialog(false);
     }
 
 
@@ -115,12 +168,12 @@ const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
                     ?
                     <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={unMuteAudio}>
                         <MicOffIcon sx={style.iconBtnIcon}/>
-                        <Typography color='text.primary'>Unmute</Typography>
+                        <Typography color='text.primary' sx={style.iconBtnText}>Unmute</Typography>
                     </IconButton>
                     :
                     <IconButton sx={style.iconBtn} style={{ width:'55px' }} onClick={muteAudio}>
                         <MicIcon sx={style.iconBtnIcon}/>
-                        <Typography color='text.primary'>Mute</Typography>
+                        <Typography color='text.primary' sx={style.iconBtnText}>Mute</Typography>
                     </IconButton>
                 }
             </Grid>
@@ -131,32 +184,39 @@ const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
                     ?
                     <IconButton sx={style.iconBtn} onClick={startVideo}>   
                         <VideocamOffIcon sx={style.iconBtnIcon}/>   
-                        <Typography color='text.primary'>Start video</Typography>
+                        <Typography color='text.primary' sx={style.iconBtnText}>Start video</Typography>
                     </IconButton>
                     :
                     <IconButton sx={style.iconBtn} onClick={stopVideo}>    
                         <VideocamIcon sx={style.iconBtnIcon}/>
-                        <Typography color='text.primary'>Stop video</Typography>
+                        <Typography color='text.primary' sx={style.iconBtnText}>Stop video</Typography>
                     </IconButton>
                 }
             </Grid>
 
             <Grid item>
                 <IconButton sx={style.iconBtn} color='success' onClick={()=> setOpenShareDialog(true)}>
-                    <ScreenShareIcon sx={style.iconBtnIcon}/>
-                    {/* <ShareIcon sx={style.iconBtnIcon}/> */}
-                    <Typography>
+                    <ShareIcon sx={style.iconBtnIcon}/>
+                    <Typography sx={style.iconBtnText}>
                         Share
                     </Typography>
                 </IconButton>
             </Grid>
 
-            <Share openShareDialog={openShareDialog} setOpenShareDialog={setOpenShareDialog} startScreenSharing={startScreenSharing} stopScreenSharing={stopScreenSharing} isSharingScreen={isSharingScreen}/>
+            <Share openShareDialog={openShareDialog} setOpenShareDialog={setOpenShareDialog} startScreenSharing={startScreenSharing} stopScreenSharing={stopScreenSharing} isSharingScreen={isSharingScreen} socket={socket}/>
 
             <Grid item>
                 <IconButton sx={style.iconBtn} onClick={()=> setOpenParticipantsDialog(true)}>
-                    <GroupIcon sx={style.iconBtnIcon}/>
-                    <Typography color='text.primary'>
+                    {
+                        openedRoomParticipants
+                        ?
+                        <Badge badgeContent={Object.keys(openedRoomParticipants).length} color="success">
+                            <GroupIcon sx={style.iconBtnIcon}/>
+                        </Badge>
+                        :
+                        <GroupIcon sx={style.iconBtnIcon}/>
+                    }
+                    <Typography color='text.primary' sx={style.iconBtnText}>
                         Participants
                     </Typography>
                 </IconButton>
@@ -165,9 +225,20 @@ const RoomFooter = ( { roomId, userId, myStream, socket } ) => {
             <Participants openParticipantsDialog={openParticipantsDialog} setOpenParticipantsDialog={setOpenParticipantsDialog} roomId={roomId}/>
 
             <Grid item>
-                <IconButton sx={style.iconBtn} onClick={()=> setOpenChatDialog(true)}>
-                    <ChatBubbleIcon sx={style.iconBtnIcon}/>
-                    <Typography color='text.primary'>
+                <IconButton sx={style.iconBtn} onClick={()=> {
+                    setOpenChatDialog(true)
+                    dispatch(setIsChatScreenOpened(true))
+                }}>
+                    {
+                        isUnreadMessagesPresent
+                        ?
+                        <Badge color="success" variant="dot">
+                            <ChatBubbleIcon sx={style.iconBtnIcon}/>
+                        </Badge>
+                        :
+                        <ChatBubbleIcon sx={style.iconBtnIcon}/>
+                    }
+                    <Typography color='text.primary' sx={style.iconBtnText}>
                         Chat
                     </Typography>
                 </IconButton>

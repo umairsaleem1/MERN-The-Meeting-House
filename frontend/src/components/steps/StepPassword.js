@@ -33,7 +33,7 @@ const StepPassword = () => {
 
             <StepsTitle icon={null} title='Pick a strong password' image='/images/lock.png' fromPassword={true}/>
 
-            <TextInput type='password' placeholder='' setValue={setPassword}/>
+            <TextInput type='password' placeholder='' value={password} setValue={setPassword}/>
 
             <Typography variant='body2' mt='15px' color='text.secondary'>
                 Password will be used for the login

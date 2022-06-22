@@ -1,6 +1,16 @@
 import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
+    breakpoints: {
+        values: {
+          xs: 0,
+          sm: 400,
+          md: 600,
+          xm: 960,
+          lg: 1280,
+          xl: 1920
+        }
+    },
     palette: {
         background: {
             primary: '#121212',
@@ -25,19 +35,40 @@ const theme = createTheme({
     },
     stepsBoxStyle: {
         height: 'auto',
-        width: '550px',
+        width: {
+            md: '550px',
+            xs: '100%',
+        },
         backgroundColor: 'background.secondary',
-        borderRadius: '20px',
+        borderRadius: {
+            md: '20px',
+            xs: '0px',
+        },
         textAlign: 'center',
-        padding: '50px',
-        paddingBottom: '70px',
+        padding: {
+            md: '50px',
+            sm: '20px',
+            xs: '10px'
+        },
+        paddingBottom: {
+            md: '70px',
+            xs: '30px',
+        },
+        paddingTop: {
+            md: '50px',
+            xs: '30px',
+        },
         color: 'text.primary'
     },
     stepsTitleStyle: {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        fontSize: {
+            md: '22px',
+            xs: '18px'
+        }
     },
     btnStyle: {
         backgroundColor: 'blue',

@@ -30,7 +30,7 @@ const style = {
         color: 'text.secondary'
     }
 }
-const RoomCard = ( { room } ) => {
+const RoomCard = ( { room, roomsParticipants } ) => {
     const colors = ['#0077FF', '#20BD5F', '#F44336', '#E91E63', '#5453E0', 'yellow'];
     let randomNo = Math.floor(Math.random() * 6);
 
@@ -59,7 +59,9 @@ const RoomCard = ( { room } ) => {
 
             <Stack direction='row' alignItems='center' spacing={0.5} sx={style.participantsCount}>
                 <Typography>
-                    { room.participants.length }
+                    {
+                        (roomsParticipants && roomsParticipants[room._id]) && Object.keys(roomsParticipants[room._id]).length
+                    }
                 </Typography>
                 <Typography>
                     <PersonSharpIcon/>

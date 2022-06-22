@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useSelector, useDispatch } from 'react-redux';
-import { setOpenedRoom, setRemoteUsersStreams, setOpenedRoomParticipants, setRoomEndedForAll, resetMessages, setIsAllParticipantsMicMuted } from "../../redux/roomsSlice";
+import { setOpenedRoom, setRemoteUsersStreams, setOpenedRoomParticipants, setRoomEndedForAll, resetMessages, setIsAllParticipantsMicMuted, resetAlert, deleteRoom, setReceivedFiles, setIsMsgNotificationMuted, setIsChatScreenOpened, setIsUnreadMessagesPresent } from "../../redux/roomsSlice";
 import EndRoom from "./EndRoom";
 import RoomDetails from "./RoomDetails";
 
@@ -16,7 +16,11 @@ const style = {
         width: '100%',
         height: '60px',
         backgroundColor: 'background.secondary',
-        padding: '0px 100px'
+        padding: {
+            md: '0px 100px',
+            sm: '0px 50px',
+            xs: '0px 15px'
+        }
     },
     meetingDetailsBtn: {
         fontWeight: 'bold',
@@ -53,20 +57,26 @@ const RoomHeader = ( { roomId, peer }) => {
             dispatch(setRoomEndedForAll(false));
            
             if(peer){
-                peer.destroy();
+                peer.destroy(); 
             }
-            socket.emit('leave room', roomId, user._id);
+            socket.emit('leave room', roomId, user._id, user.name);
     
             dispatch(setOpenedRoom(null));
             dispatch(setOpenedRoomParticipants(null));
             dispatch(setRemoteUsersStreams([]));
             dispatch(resetMessages([]));
             dispatch(setIsAllParticipantsMicMuted(false));
+            dispatch(resetAlert(''));
+            dispatch(setReceivedFiles([]));
+            dispatch(setIsMsgNotificationMuted(false));
+            dispatch(setIsChatScreenOpened(false));
+            dispatch(setIsUnreadMessagesPresent(false));
             navigate('/');
+            window.location.reload();
 
         }
 
-    }, [dispatch, roomEndedForAll, navigate, peer, roomId, socket, user._id])
+    }, [dispatch, roomEndedForAll, navigate, peer, roomId, socket, user._id, user.name])
     
 
 
@@ -77,20 +87,30 @@ const RoomHeader = ( { roomId, peer }) => {
         if(peer){
             peer.destroy();
         }
-        socket.emit('leave room', roomId, user._id);
+        socket.emit('leave room', roomId, user._id, user.name);
 
         dispatch(setOpenedRoom(null));
         dispatch(setOpenedRoomParticipants(null));
         dispatch(setRemoteUsersStreams([]));
         dispatch(resetMessages([]));
         dispatch(setIsAllParticipantsMicMuted(false));
+        dispatch(resetAlert(''));
+        dispatch(setReceivedFiles([]));
+        dispatch(setIsMsgNotificationMuted(false));
+        dispatch(setIsChatScreenOpened(false));
+        dispatch(setIsUnreadMessagesPresent(false));
         navigate('/');
+        window.location.reload();
     }
 
 
     const endRoomForAll = ()=>{
-        socket.emit('end room', roomId, user._id);
+        
+        dispatch(deleteRoom(roomId));
+
+        socket.emit('end room', roomId, user._id, user.name);
         leaveRoom();
+
     }
 
     const handleBackBtnClick = ()=>{

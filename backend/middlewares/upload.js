@@ -2,20 +2,14 @@ const multer = require('multer');
 const path = require('path');
 
 
-const storageEngine = multer.diskStorage({
-    destination: './uploads',
-    filename: (req, file, callback)=>{
-        const index = file.originalname.lastIndexOf('.');
-        const name = file.originalname.slice(0,index) + '-' + Date.now() + path.extname(file.originalname);
-        callback(null, name);
-    }
-});
+const storageEngine = multer.diskStorage({});
 
 
 
 const fileFilter = (req, file, callback)=>{
-    let allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'image/svg', 'image/gif'];
-    if (allowedFileTypes.includes(file.mimetype)){
+    const ext = path.extname(file.originalname);
+    let allowedFileTypes = ['.jpeg', '.jpg', '.png', '.svg+xml', '.svg', '.gif', '.xlsx', '.xls', '.doc', '.docx', '.ppt', '.pptx', '.txt', '.pdf'];
+    if (allowedFileTypes.includes(ext)){
         callback(null, true);
     }else{
         callback(null, false);
@@ -26,7 +20,10 @@ const fileFilter = (req, file, callback)=>{
 
 const upload = multer({
     storage: storageEngine,
-    fileFilter: fileFilter
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 10 * 1024 * 1024
+    }
 });
 
 

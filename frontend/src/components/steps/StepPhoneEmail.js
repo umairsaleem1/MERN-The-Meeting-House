@@ -16,15 +16,24 @@ import './stepPhoneEmail.css';
 const style = {
     mainContainer: {
         height: 'auto',
-        width: '550px',
+        width: {
+            md: '550px',
+            xs: '100%',
+        },
         position: 'relative'
     },
     tabBtns: {
         height: '60px',
         width: '125px',
         position: 'absolute',
-        top: 0,
-        right: 0,
+        top: {
+            sm: 0,
+            xs: -80
+        },
+        right: {
+            md: 0,
+            xs: 10,
+        },
         display: 'flex',
         justifyContent: 'space-between'
     },
@@ -122,7 +131,7 @@ const StepPhoneEmail = () => {
                         className='phone-num-input'
                     />
                     :
-                    <TextInput type={selectedTab} placeholder='' setValue={setReceiver}/>
+                    <TextInput type={selectedTab} placeholder='' value={receiver} setValue={setReceiver}/>
                }
                 <br/>
 

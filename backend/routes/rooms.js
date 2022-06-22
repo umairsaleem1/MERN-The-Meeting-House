@@ -2,6 +2,8 @@ const router = require('express').Router();
 const Room = require('../models/room');
 const auth = require('../middlewares/auth');
 const refreshToken = require('../middlewares/refreshToken');
+const upload = require('../middlewares/upload');
+const cloudinary = require('../config/cloudinary');
 
 
 
@@ -44,7 +46,7 @@ router.post('/rooms', refreshToken, auth, async (req, res)=>{
 // get all public rooms
 router.get('/rooms', refreshToken, auth, async (req, res)=>{
     try{
-        const rooms = await Room.find({ type: 'public' }).populate('creator', { password: 0 });
+        const rooms = await Room.find({ type: 'public' }).populate('creator', { password: 0 }).sort({ createdAt: -1 });
 
         res.status(200).json({
             rooms: rooms
@@ -90,5 +92,57 @@ router.get('/rooms/:roomId', async (req, res)=>{
         console.log(e);
     }
 })
+
+
+
+
+
+// delete a room
+router.delete('/rooms/:roomId', refreshToken, auth, async (req, res)=>{
+    try{
+        const { roomId } = req.params;
+        await Room.findByIdAndDelete({ _id: roomId });
+
+        res.status(200).json({
+            message: 'Room deleted successfylly'
+        });
+        
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message: 'Some problem occurred'
+        });
+    }
+});
+
+
+
+
+router.post('/rooms/:roomId/uploadfile', refreshToken, auth, upload.single('file'), async (req, res)=>{
+    try{
+        const file = req.file;
+        if(!file){
+            return res.status(400).json({
+                message: 'File is not present'
+            });
+        }
+
+        const result = await cloudinary.uploader.upload(req.file.path, { resource_type: 'auto' });
+        
+        res.status(200).json({
+            file: { file: result.secure_url, name: req.file.originalname, cloudinaryId: result.public_id, type: result.resource_type }
+        });
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message: 'Some problem occurred'
+        });
+    }
+});
+
+
+
+
 
 module.exports = router;

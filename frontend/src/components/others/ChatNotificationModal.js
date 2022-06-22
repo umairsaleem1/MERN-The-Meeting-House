@@ -1,4 +1,6 @@
 import { Box, Typography, Modal, Backdrop, Fade, Button } from '@mui/material';
+import { useSelector, useDispatch } from 'react-redux';
+import { setIsMsgNotificationMuted } from '../../redux/roomsSlice';
 
 
 
@@ -47,12 +49,17 @@ const style = {
     }
 }
 
-const ChatNotificationModal = ( { openChatNotificationModal, setOpenChatNotificationModal, isMsgNotificationMuted, setIsMsgNotificationMuted } ) => {
+const ChatNotificationModal = ( { openChatNotificationModal, setOpenChatNotificationModal } ) => {
+
+    const { isMsgNotificationMuted } = useSelector((state)=>state.rooms);
+    const dispatch = useDispatch();
+
 
     const handleMuteAndUnmuteBtnClick = ()=>{
         setOpenChatNotificationModal(false);
-        setIsMsgNotificationMuted(!isMsgNotificationMuted);
+        dispatch(setIsMsgNotificationMuted(!isMsgNotificationMuted));
     }
+    
     return (
         <Modal
             open={openChatNotificationModal}

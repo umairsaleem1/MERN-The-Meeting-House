@@ -15,14 +15,26 @@ import Navbar from "../components/shared/Navbar";
 
 const style = {
     container: {
-        minHeight: 'calc(100vh - 80px)',
-        height: 'auto',
+        height: {
+            md: 'calc(100vh - 80px)',
+            xs: 'calc(100vh - 60px)',
+        },
         width: '100%',
         backgroundColor: 'background.primary',
-        display: 'flex',
+        display: { 
+            sm: 'flex' ,
+            xs: 'block'
+        },
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop:'80px'
+        marginTop: {
+            md: '80px',
+            xs: '60px',
+        },
+        paddingTop: {
+            sm: '0px',
+            xs: '60px'
+        }
     },
     newUser: {
         color: 'blue',
@@ -74,8 +86,8 @@ const Login = () => {
 
                 <StepsTitle icon='🚀' title='Log in to your account'/>
 
-                <TextInput type='email' placeholder='Enter email' setValue={setEmail}/>
-                <TextInput type='password' placeholder='Enter password' setValue={setPassword}/>
+                <TextInput type='email' placeholder='Enter email' value={email} setValue={setEmail}/>
+                <TextInput type='password' placeholder='Enter password' value={password} setValue={setPassword}/>
                 <br/>
 
                 <Button variant='contained' endIcon={apiRequestFinished && <LoginIcon />} sx={(theme)=>theme.btnStyle} style={ !apiRequestFinished ? { width: '95px' } : null } onClick={handleLogin} disabled={!apiRequestFinished}>

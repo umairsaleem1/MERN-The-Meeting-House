@@ -11,6 +11,7 @@ const upload = require('../middlewares/upload');
 const auth = require('../middlewares/auth');
 const refreshToken = require('../middlewares/refreshToken');
 const { baseURL } = require('../utils/baseURL');
+const cloudinary = require('../config/cloudinary');
 
 
 
@@ -108,17 +109,19 @@ router.post('/register', upload.single('avatar'), async (req, res)=>{
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        let avatar = '';
+        let result = {
+            secure_url: '',
+            public_id: ''
+        }
         if(req.file){
-            // avatar = baseURL + req.file.path;
-            avatar = req.file.filename;
-            
+            result = await cloudinary.uploader.upload(req.file.path);  
         }
 
         const newUser = new User({
             phone: phone,
             name: name,
-            avatar: avatar,
+            avatar: result.secure_url,
+            cloudinaryId: result.public_id,
             email: email,
             password: hashedPassword
         });
@@ -188,6 +191,32 @@ router.post('/login', async (req, res)=>{
         console.log(e);
     }
 })
+
+
+
+
+
+router.get('/logout', refreshToken, auth, (req, res)=>{
+    try{
+        res.cookie('refreshToken', null, { 
+            expires: new Date(Date.now()),
+            httpOnly: true
+        });
+        res.cookie('accessToken', null, {
+            expires: new Date(Date.now()),
+            httpOnly: true
+        });
+
+        res.status(200).json({
+            message: 'User logged out successfully...'
+        });
+
+    }catch(e){
+        res.status(500).json({
+            message: 'Some problem occurred'
+        });
+    }
+});
 
 
 
@@ -303,5 +332,52 @@ router.get('/authenticate', refreshToken, auth, async (req, res)=>{
         console.log(e);
     }
 })
+
+
+
+
+// update profile
+router.put('/profile', refreshToken, auth, upload.single('avatar'), async (req, res)=>{
+    try{
+        const { name, email, phone, password} = req.body;
+        if(!name && !email && !phone && !password && !req.file){
+            return res.status(400).json({
+                message: 'No data found to update the profile'
+            });
+        }
+
+        const dataToUpdate = {
+            ...req.body
+        };
+
+        if(req.file){
+            const result = await cloudinary.uploader.upload(req.file.path);
+            dataToUpdate.avatar = result.secure_url;
+            dataToUpdate.cloudinaryId = result.public_id;
+        }
+        if(password){
+            const hashedPassword = await bcrypt.hash(password, 10);
+            dataToUpdate.password = hashedPassword;
+        }
+
+
+        const oldDataOfUser = await User.findByIdAndUpdate({ _id: req.id }, { $set: dataToUpdate });
+        if(oldDataOfUser.avatar){
+            await cloudinary.uploader.destroy(oldDataOfUser.cloudinaryId);
+        }
+
+        const updatedUser = await User.findById({ _id: req.id }).select({ password: 0 });
+        
+        res.status(200).json({
+            updatedUser
+        });
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message: 'Some problem occurred'
+        });
+    }
+});
 
 module.exports = router;

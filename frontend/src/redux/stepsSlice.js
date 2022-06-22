@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { setUser } from './authSlice';
+import { setRooms, setRoomsFetchingCompleted, setRoomsParticipants,  } from './roomsSlice';
 
 
 
@@ -222,7 +223,7 @@ export function loginUser(email, password, navigate){
             }
             else if(res.status===401){
                 errorMessage = 'Invalid credentials!';
-                throw new Error(res.statusText);
+                throw new Error(res.statusText); 
             }
             else if(!res.ok){
                 errorMessage = 'Oops! some problem occurred';
@@ -231,9 +232,12 @@ export function loginUser(email, password, navigate){
 
             const data = await res.json();
 
-            console.log(data);
+            console.log(data); 
             dispatch(setApiRequestFinished(true));
             dispatch(setUser(null));
+            dispatch(setRooms([]));
+            dispatch(setRoomsFetchingCompleted(false));
+            dispatch(setRoomsParticipants(null));
             navigate('/');
 
             

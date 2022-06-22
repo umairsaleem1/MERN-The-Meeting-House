@@ -5,6 +5,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Rooms from './pages/Rooms';
 import SingleRoom from './pages/SingleRoom';
+import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
 
 
 
@@ -19,6 +21,8 @@ const App = () => {
           <Route path='/forgotpassword' element={<ForgotPassword/>} />
           <Route path='/resetpassword/:token' element={<ResetPassword/>} />
           <Route path='/:roomId' element={<SingleRoom/>}/>
+          <Route path='/me' element={<Profile/>} />
+          <Route path='*' element={<NotFound/>} />
         </Routes>
       </BrowserRouter>
     </>

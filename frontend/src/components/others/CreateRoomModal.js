@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Grid, Box, TextField, Typography, Button, IconButton, Modal, Backdrop, Fade, Avatar, CircularProgress } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { createRoom } from '../../redux/roomsSlice';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -13,10 +14,16 @@ const style = {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 500,
+        width: {
+            md: 500,
+            xs: '90%'
+        },
         bgcolor: 'background.secondary',
         boxShadow: 24,
-        p: 4,
+        p: {
+            md: 4,
+            xs: 2
+        },
         borderRadius: '20px'
       },
       closeModalBtn: {
@@ -62,11 +69,13 @@ const style = {
 }
 const CreateRoomModal = ( { openModal, setOpenModal } ) => {
 
+    const { socket } = useSelector((state)=>state.rooms);
     const [topic, setTopic] = useState('');
     const [selectedRoomType, setSelectedRoomType] = useState('public');
     const [roomDesc, setRoomDesc] = useState('Start a room, open to everyone');
     const [showLoader, setShowLoader] = useState(false);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
 
     const handlePublicRoomTypeClick = ()=>{
@@ -80,7 +89,7 @@ const CreateRoomModal = ( { openModal, setOpenModal } ) => {
 
 
     const handleCreateRoom = ()=>{
-        dispatch(createRoom({ topic, selectedRoomType }, setTopic, setSelectedRoomType, setShowLoader, setOpenModal));
+        dispatch(createRoom({ topic, selectedRoomType }, setTopic, setSelectedRoomType, setShowLoader, setOpenModal, navigate, socket));
     }
 
     return (
@@ -107,6 +116,7 @@ const CreateRoomModal = ( { openModal, setOpenModal } ) => {
 
                     <TextField
                         sx={style.topicInput}
+                        autoComplete='off'
                         InputProps={{
                             disableUnderline: true,
                             style: { fontSize: '1.2rem', color: '#C4C5C5' }

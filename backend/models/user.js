@@ -12,6 +12,9 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: String
     },
+    cloudinaryId: {
+        type: String
+    },
     email: {
         type: String,
         required: true,

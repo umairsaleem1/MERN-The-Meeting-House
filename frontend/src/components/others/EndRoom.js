@@ -9,7 +9,7 @@ const style = {
         position: 'fixed',
         left: 'calc(100% - 350px)',
         top: '0px',
-        height: '214px',
+        height: '150px',
         width: '350px'
     },
     cancelEndMeetingDialog: {
@@ -94,14 +94,16 @@ const EndRoom = ( { openEndMeetingDialog, setOpenEndMeetingDialog, leaveRoom, en
             </Box>
             <DialogActions sx={style.endMeetingDialogLeaveBtns}>
                 {
-                    (openedRoom && openedRoom.creator===user._id) && 
+                    (openedRoom && openedRoom.creator===user._id)
+                    ?
                     <Button sx={style.endMeetingDialogLeaveAllBtn} variant='contained' onClick={()=> endRoomForAll()}>
                         End Room for All
                     </Button>
+                    :
+                    <Button sx={style.endMeetingDialogLeaveSingleBtn} variant='contained' onClick={leaveRoom}>
+                        Leave Room
+                    </Button>
                 }
-                <Button sx={style.endMeetingDialogLeaveSingleBtn} variant='contained' onClick={leaveRoom}>
-                    Leave Room
-                </Button>
             </DialogActions>
         </Dialog>
     )

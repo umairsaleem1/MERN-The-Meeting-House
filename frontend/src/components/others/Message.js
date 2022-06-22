@@ -7,7 +7,7 @@ const style = {
     container: {
         width: '100%',
         height: 'auto',
-        padding: '0px 10px',
+        padding: '0px 15px',
         display: 'flex',
         justifyContent: 'flex-start',
         flexDirection: 'column'

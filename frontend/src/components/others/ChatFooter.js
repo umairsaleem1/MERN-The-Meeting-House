@@ -19,7 +19,7 @@ const style = {
         position: 'absolute',
         bottom: '0px',
         left: '0px',
-        padding: '0px 10px',
+        padding: '0px 15px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between'
@@ -78,7 +78,7 @@ const ChatFooter = () => {
             authorAvatar: user.avatar
         };
 
-        dispatch(appendMessage(newMessage));
+        dispatch(appendMessage({ message: newMessage, fromMe: true }));
         setMessage('');
 
         socket.emit('new message', roomId, newMessage);
@@ -91,6 +91,7 @@ const ChatFooter = () => {
                 type='text'
                 placeholder='Send a message to everyone'
                 variant="standard"
+                autoComplete="off"
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">

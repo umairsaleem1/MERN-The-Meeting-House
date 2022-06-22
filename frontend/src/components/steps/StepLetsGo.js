@@ -9,9 +9,16 @@ import StepsTitle from '../shared/StepsTitle';
 
 const style = {
     introText: {
-        marginTop: '30px',
+        marginTop: {
+            md: '30px',
+            xs: '10px'
+        },
         color: 'text.secondary',
-        lineHeight: '30px'
+        lineHeight: '30px',
+        fontSize: {
+            md: '20px',
+            xs: '18px'
+        }
     },
     alreadyRegistered: {
         color: 'blue',

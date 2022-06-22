@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Dialog, Typography, Button, Slide, IconButton } from "@mui/material";
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setIsChatScreenOpened, setIsUnreadMessagesPresent } from '../../redux/roomsSlice';
 import ChatNotificationModal from './ChatNotificationModal';
 import Message from './Message';
 import ChatFooter from './ChatFooter';
@@ -13,9 +14,15 @@ import ChatFooter from './ChatFooter';
 const style = {
     chatDialog: {
         position: 'fixed',
-        left: 'calc(100% - 350px)',
+        left: {
+            sm: 'calc(100% - 350px)',
+            xs: '0px'
+        },
         top: '0px',
-        width: '350px'
+        width: {
+            sm: '350px',
+            xs: '100%'
+        }
     },
     chat: {
         backgroundColor: 'background.secondary',
@@ -64,10 +71,23 @@ const TransitionComponent = React.forwardRef(function TransitionComponent(props,
 
 const Chat = ( { openChatDialog, setOpenChatDialog } ) => {
 
-    const { rooms: { messages }, auth: { user } } = useSelector((state)=>state);
+    const { rooms: { messages, isMsgNotificationMuted, isChatScreenOpened }, auth: { user } } = useSelector((state)=>state);
     const [openChatNotificationModal, setOpenChatNotificationModal] = useState(false);
-    const [isMsgNotificationMuted, setIsMsgNotificationMuted] = useState(false);
-    // const [messages, setMessages] = useState([{id:1, author:'usman'},{id:2, author:'faheem'},{id:3, author:'me'},{id:4, author:'me'},{id:5, author:'qasim'},{id:6, author:'qasim'}]);
+    const messagesContainerRef = useRef();
+    const dispatch = useDispatch();
+
+
+
+
+    useEffect(()=>{
+        if(messagesContainerRef.current){
+            messagesContainerRef.current.scrollTo({top:messagesContainerRef.current.scrollHeight, left:0});
+        }
+    }, [messages])
+
+    useEffect(()=>{
+        dispatch(setIsUnreadMessagesPresent(false));
+    }, [dispatch, isChatScreenOpened])
 
 
     return (
@@ -76,7 +96,10 @@ const Chat = ( { openChatDialog, setOpenChatDialog } ) => {
             TransitionComponent={TransitionComponent}
             keepMounted
             fullScreen={true}
-            onClose={()=> setOpenChatDialog(false)}
+            onClose={()=> {
+                setOpenChatDialog(false)
+                dispatch(setIsChatScreenOpened(false))
+            }}
             sx={style.chatDialog}
             BackdropProps={{
                 style: {
@@ -94,7 +117,10 @@ const Chat = ( { openChatDialog, setOpenChatDialog } ) => {
         >
             <Box sx={style.chat}>
                 <Box sx={style.chatHeader}>
-                    <Button sx={style.closeBtn} onClick={()=> setOpenChatDialog(false)}>
+                    <Button sx={style.closeBtn} onClick={()=> {
+                        setOpenChatDialog(false)
+                        dispatch(setIsChatScreenOpened(false))
+                    }}>
                         Close
                     </Button>
                     <Typography variant='body1' sx={style.title}>
@@ -111,9 +137,9 @@ const Chat = ( { openChatDialog, setOpenChatDialog } ) => {
                     </IconButton>
                 </Box>
 
-                <ChatNotificationModal openChatNotificationModal={openChatNotificationModal} setOpenChatNotificationModal={setOpenChatNotificationModal} isMsgNotificationMuted={isMsgNotificationMuted} setIsMsgNotificationMuted={setIsMsgNotificationMuted}/>
+                <ChatNotificationModal openChatNotificationModal={openChatNotificationModal} setOpenChatNotificationModal={setOpenChatNotificationModal}/>
 
-                <Box sx={style.messagesContainer}>
+                <Box sx={style.messagesContainer} ref={messagesContainerRef}>
                     {
                         messages.length
                         ?

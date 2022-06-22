@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'; 
 
-const GuestVideo = ( { stream, style } ) => {
+const GuestVideo = ( { stream, style, expanded } ) => {
 
     const guestVideoRef = useRef();
 
@@ -12,11 +12,11 @@ const GuestVideo = ( { stream, style } ) => {
             guestVideoRef.current.src = window.URL.createObjectURL(stream)
         }
 
-    }, [])
+    }, [stream])
 
 
     return (
-        <video playsInline ref={guestVideoRef} autoPlay style={style.guestMedia}></video>
+        <video playsInline ref={guestVideoRef} autoPlay style={expanded ? style.media : style.guestMedia}></video>
     )
 }
 

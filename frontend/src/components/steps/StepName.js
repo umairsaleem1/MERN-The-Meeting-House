@@ -35,7 +35,7 @@ const StepName = () => {
 
             <StepsTitle icon='🤓' title="What's your full name?"/>
 
-            <TextInput type='text' placeholder='' setValue={setName}/>
+            <TextInput type='text' placeholder='' value={name} setValue={setName}/>
 
             <Typography variant='body1' mt='15px' color='text.secondary'>
                 People use real names at The Meeting House :)

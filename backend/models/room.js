@@ -19,7 +19,7 @@ const roomSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     }]
-});
+}, { timestamps: true });
 
 const Room = mongoose.model('room', roomSchema);
 

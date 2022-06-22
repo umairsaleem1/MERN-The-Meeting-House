@@ -34,7 +34,7 @@ const StepEmail = () => {
 
             <StepsTitle icon={null} title="What's your email id?" image='/images/email-emoji.png'/>
             
-            <TextInput type='email' placeholder='' setValue={setEmail}/>
+            <TextInput type='email' placeholder='' value={email} setValue={setEmail}/>
 
             <Typography variant='body2' mt='15px' color='text.secondary'>
                 Email will be used for the login

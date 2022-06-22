@@ -13,9 +13,15 @@ import { setIsAllParticipantsMicMuted } from '../../redux/roomsSlice';
 const style = {
     participantsDialog: {
         position: 'fixed',
-        left: 'calc(100% - 350px)',
+        left: {
+            sm: 'calc(100% - 350px)',
+            xs: '0px'
+        },
         top: '0px',
-        width: '350px'
+        width: {
+            sm: '350px',
+            xs: '100%'
+        }
     },
     participants: {
         backgroundColor: 'background.secondary',
@@ -54,7 +60,7 @@ const style = {
     participant: {
         width: '100%',
         height: '55px',
-        padding: '8px 10px',
+        padding: '8px 15px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
